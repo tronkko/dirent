@@ -20,11 +20,16 @@
  * The ls command provided by this file is only an example.  That is, the
  * command does not have any fancy options like "ls -al" in Linux and the
  * command does not support file name matching like "ls *.c".
+ *
+ * Copyright (C) 2006-2012 Toni Ronkko
+ * This file is part of dirent.  Dirent may be freely distributed
+ * under the MIT license.  For all details and documentation, see
+ * https://github.com/tronkko/dirent
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "dirent.h"
+#include <dirent.h>
 
 static void list_directory (const char *dirname);
 

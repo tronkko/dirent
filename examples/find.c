@@ -20,11 +20,16 @@
  * The find command provided by this file is only an example.  That is,
  * the command does not provide options to restrict the output to certain
  * files as the Linux version does.
+ *
+ * Copyright (C) 2006-2012 Toni Ronkko
+ * This file is part of dirent.  Dirent may be freely distributed
+ * under the MIT license.  For all details and documentation, see
+ * https://github.com/tronkko/dirent
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "dirent.h"
+#include <dirent.h>
 
 static int find_directory (const char *dirname);
 

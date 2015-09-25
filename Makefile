@@ -5,7 +5,7 @@
 #
 
 # Current cersion number
-VERSION=1.20.1
+VERSION=1.21
 
 # List of files to include in zip package
 DIST_FILES = include/*.h examples/*.c tests/*.c tests/1/file tests/1/dir/* tests/2/* vs2008/vs2008.sln vs2008/ls/ls.vcproj vs2008/find/find.vcproj vs2008/updatedb/updatedb.vcproj vs2008/locate/locate.vcproj vs2008/t-dirent/t-dirent.vcproj ChangeLog

@@ -5,6 +5,11 @@
  * produced command in console using the project root as current working
  * directory.  If everything works out fine, the program outputs the word
  * OK and quits gracefully.
+ *
+ * Copyright (C) 2006-2012 Toni Ronkko
+ * This file is part of dirent.  Dirent may be freely distributed
+ * under the MIT license.  For all details and documentation, see
+ * https://github.com/tronkko/dirent
  */
 #include <stdio.h>
 #include <stdlib.h>

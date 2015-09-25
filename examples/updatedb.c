@@ -19,6 +19,11 @@
  *
  * Be ware that this code is not compatible with Linux or other major
  * Unixes.  Linux does not even have wide-character version of dirent!
+ *
+ * Copyright (C) 2006-2012 Toni Ronkko
+ * This file is part of dirent.  Dirent may be freely distributed
+ * under the MIT license.  For all details and documentation, see
+ * https://github.com/tronkko/dirent
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +31,7 @@
 #include <wchar.h>
 #include <io.h>
 #include <fcntl.h>
-#include "dirent.h"
+#include <dirent.h>
 
 /* File name and location of database file */
 #define DB_LOCATION L"locate.db"

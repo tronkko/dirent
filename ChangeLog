@@ -1,3 +1,8 @@
+2015-09-25  Toni Rönkkö
+
+	* Version 1.21: compiles correctly under Open Watcom.  Thanks to
+	Virgil Banowetz for a patch!
+
 2014-04-07  Toni Rönkkö
 
 	* Version 1.20.1: the zip file from the previous version did not open
@@ -7,7 +12,7 @@
 2014-03-17  Toni Ronkko
 
 	* Version 1.20: dirent.h compiles correctly in 64-bit architecture.
-	 Thanks to Aaron Simmons!
+	Thanks to Aaron Simmons!
 
 2014-03-03  Toni Ronkko
 
@@ -44,7 +49,7 @@
 	_wrewinddir().  Thanks to Edgar Buerkle and Jan Nijtmans for ideas
 	and code.
 
-	* Do not include windows.h.  This allows dirent.h to be integrated
+	* Now avoiding windows.h.  This allows dirent.h to be integrated
 	more easily into programs using winsock.  Thanks to Fernando
 	Azaldegui.
 
