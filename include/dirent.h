@@ -871,7 +871,7 @@ dirent_wcstombs_s(
             mbstr[n] = '\0';
         }
 
-        /* Lenght of resulting multi-bytes string WITH zero-terminator */
+        /* Length of resulting multi-bytes string WITH zero-terminator */
         if (pReturnValue) {
             *pReturnValue = n + 1;
         }
