@@ -24,8 +24,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include <windef.h>
-#include <winbase.h>
+#include <windows.h>
 #include <wchar.h>
 #include <string.h>
 #include <stdlib.h>
