@@ -540,7 +540,7 @@ dirent_first(
     WIN32_FIND_DATAW *datap;
 
     /* Open directory and retrieve the first entry */
-    dirp->handle = FindFirstFileW (dirp->patt, &dirp->data);
+    dirp->handle = FindFirstFileExW (dirp->patt, FindExInfoStandard, &dirp->data, FindExSearchNameMatch, NULL, 0);
     if (dirp->handle != INVALID_HANDLE_VALUE) {
 
         /* a directory entry is now waiting in memory */
