@@ -14,6 +14,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _MSC_VER
+#   include <direct.h>
+#   define chdir(x) _chdir(x)
+#endif
 #include <sys/stat.h>
 #include "dirent.h"
 
@@ -219,6 +223,94 @@ main(
         closedir (dir);
     }
 
+    /* Rewind with intervening change of working directory */
+    {
+        DIR *dir;
+        struct dirent *ent;
+        int found = 0;
+        int errorcode;
+
+        /* Open directory */
+        dir = opendir ("tests/1");
+        assert (dir != NULL);
+
+        /* Read entries */
+        while ((ent = readdir (dir)) != NULL) {
+
+            /* Check each file */
+            if (strcmp (ent->d_name, ".") == 0) {
+                /* Directory itself */
+                found |= 1;
+
+            } else if (strcmp (ent->d_name, "..") == 0) {
+                /* Parent directory */
+                found |= 2;
+
+            } else if (strcmp (ent->d_name, "file") == 0) {
+                /* Regular file */
+                found |= 4;
+
+            } else if (strcmp (ent->d_name, "dir") == 0) {
+                /* Just a directory */
+                found |= 8;
+
+            } else {
+                /* Other file */
+                fprintf (stderr, "Unexpected file %s\n", ent->d_name);
+                abort ();
+            }
+
+        }
+
+        /* Make sure that all files were found */
+        assert (found == 0xf);
+
+        /* Change working directory */
+        errorcode = chdir ("tests");
+        assert (errorcode == 0);
+
+        /* Rewind stream and read entries again */
+        rewinddir (dir);
+        found = 0;
+
+        /* Read entries */
+        while ((ent = readdir (dir)) != NULL) {
+
+            /* Check each file */
+            if (strcmp (ent->d_name, ".") == 0) {
+                /* Directory itself */
+                found |= 1;
+
+            } else if (strcmp (ent->d_name, "..") == 0) {
+                /* Parent directory */
+                found |= 2;
+
+            } else if (strcmp (ent->d_name, "file") == 0) {
+                /* Regular file */
+                found |= 4;
+
+            } else if (strcmp (ent->d_name, "dir") == 0) {
+                /* Just a directory */
+                found |= 8;
+
+            } else {
+                /* Other file */
+                fprintf (stderr, "Unexpected file %s\n", ent->d_name);
+                abort ();
+            }
+
+        }
+
+        /* Make sure that all files were found */
+        assert (found == 0xf);
+
+        /* Restore working directory */
+        errorcode = chdir ("..");
+        assert (errorcode == 0);
+
+        closedir (dir);
+    }
+
     /* Long file name */
     {
         DIR *dir;
@@ -289,7 +381,6 @@ main(
 
         closedir (dir);
     }
-
 
     printf ("OK\n");
     return EXIT_SUCCESS;
