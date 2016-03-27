@@ -11,20 +11,16 @@
 #define DIRENT_H
 
 /*
- * Define architecture flags so we don't need to include windows.h.
- * Avoiding windows.h makes it simpler to use windows sockets in conjunction
- * with dirent.h.
+ * Include windows.h without Windows Sockets 1.1 to prevent conflicts with
+ * Windows Sockets 2.0.
  */
-#if !defined(_68K_) && !defined(_MPPC_) && !defined(_X86_) && !defined(_IA64_) && !defined(_AMD64_) && defined(_M_IX86)
-#   define _X86_
+#ifndef WIN32_LEAN_AND_MEAN
+#   define WIN32_LEAN_AND_MEAN
 #endif
-#if !defined(_68K_) && !defined(_MPPC_) && !defined(_X86_) && !defined(_IA64_) && !defined(_AMD64_) && defined(_M_AMD64)
-#define _AMD64_
-#endif
+#include <windows.h>
 
 #include <stdio.h>
 #include <stdarg.h>
-#include <windows.h>
 #include <wchar.h>
 #include <string.h>
 #include <stdlib.h>
@@ -554,7 +550,9 @@ dirent_first(
     WIN32_FIND_DATAW *datap;
 
     /* Open directory and retrieve the first entry */
-    dirp->handle = FindFirstFileExW (dirp->patt, FindExInfoStandard, &dirp->data, FindExSearchNameMatch, NULL, 0);
+    dirp->handle = FindFirstFileExW(
+        dirp->patt, FindExInfoStandard, &dirp->data,
+        FindExSearchNameMatch, NULL, 0);
     if (dirp->handle != INVALID_HANDLE_VALUE) {
 
         /* a directory entry is now waiting in memory */

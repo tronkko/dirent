@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "locate", "locate\locate.vcp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "t-dirent", "t-dirent\t-dirent.vcproj", "{B01AFDF2-F1D1-4377-B9A4-A8AC26CAFF0C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "t-compile", "t-compile\t-compile.vcproj", "{AB07FE4C-6587-473F-A91D-0DBF00FC846D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -37,6 +39,10 @@ Global
 		{B01AFDF2-F1D1-4377-B9A4-A8AC26CAFF0C}.Debug|Win32.Build.0 = Debug|Win32
 		{B01AFDF2-F1D1-4377-B9A4-A8AC26CAFF0C}.Release|Win32.ActiveCfg = Release|Win32
 		{B01AFDF2-F1D1-4377-B9A4-A8AC26CAFF0C}.Release|Win32.Build.0 = Release|Win32
+		{AB07FE4C-6587-473F-A91D-0DBF00FC846D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AB07FE4C-6587-473F-A91D-0DBF00FC846D}.Debug|Win32.Build.0 = Debug|Win32
+		{AB07FE4C-6587-473F-A91D-0DBF00FC846D}.Release|Win32.ActiveCfg = Release|Win32
+		{AB07FE4C-6587-473F-A91D-0DBF00FC846D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
