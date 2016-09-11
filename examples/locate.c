@@ -25,8 +25,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
-#include <io.h>
-#include <fcntl.h>
+#ifdef WIN32
+#   include <io.h>
+#   include <fcntl.h>
+#endif
 #include <dirent.h>
 
 /* File name and location of database file */
@@ -49,6 +51,7 @@ int
 main(
     int argc, char *argv[]) 
 {
+#ifdef WIN32
     int i;
 
     /* Prepare for unicode output */
@@ -82,6 +85,9 @@ main(
         wprintf (L"Usage: locate pattern\n");
         exit (EXIT_FAILURE);
     }
+#else
+    printf ("locate only works on Microsoft Windows\n");
+#endif
 
     return EXIT_SUCCESS;
 }
@@ -91,8 +97,10 @@ static int
 db_locate(
     const wchar_t *pattern)
 {
-    wchar_t buffer[PATH_MAX + 1];
     int count = 0;
+
+#ifdef WIN32
+    wchar_t buffer[PATH_MAX + 1];
 
     /* Open locate.db for read */
     db_open ();
@@ -109,6 +117,8 @@ db_locate(
     }
 
     db_close ();
+#endif
+
     return count;
 }
 
@@ -117,12 +127,14 @@ static int
 db_match(
     const wchar_t *fn, const wchar_t *pattern) 
 {
+    int found = 0;
+
+#ifdef WIN32
     wchar_t *p;
     wchar_t base[PATH_MAX + 1];
     wchar_t patt[PATH_MAX + 1];
-    int done = 0;
-    int found;
     int i;
+    int done = 0;
 
     /* Locate zero-terminator from fn */
     p = wcschr (fn, '\0');
@@ -165,6 +177,8 @@ db_match(
     } else {
         found = 0;
     }
+#endif
+
     return found;
 }
 
@@ -176,10 +190,12 @@ static int
 db_read(
     wchar_t *buffer, size_t max)
 {
+    int ok = 0;
+
+#ifdef WIN32
     size_t i = 0;
     wchar_t c;
     int done = 0;
-    int ok = 0;
 
     do {
         /* Read wide-character from stream */
@@ -228,6 +244,7 @@ db_read(
 
     /* Zero-terminate buffer */
     buffer[i] = '\0';
+#endif
 
     return ok;
 }
@@ -237,6 +254,7 @@ static void
 db_open(
     void)
 {
+#ifdef WIN32
     if (db == NULL) {
         errno_t error;
 
@@ -247,6 +265,7 @@ db_open(
             exit (EXIT_FAILURE);
         }
     }
+#endif
 }
 
 /* Close database file */

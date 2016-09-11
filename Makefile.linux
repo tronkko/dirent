@@ -1,14 +1,14 @@
-# This Linux Makefile will pack dirent into a distributable zip
+# This Makefile will pack dirent into a distributable zip
 # package.  To build the package, invoke this Makefile as
 #
-#     make dist
+#     make -f Makefile.linux dist
 #
 
 # Current cersion number
-VERSION=1.21
+VERSION=1.22
 
 # List of files to include in zip package
-DIST_FILES = include/*.h examples/*.c tests/*.c tests/1/file tests/1/dir/* tests/2/* vs2008/vs2008.sln vs2008/ls/ls.vcproj vs2008/find/find.vcproj vs2008/updatedb/updatedb.vcproj vs2008/locate/locate.vcproj vs2008/t-dirent/t-dirent.vcproj ChangeLog
+DIST_FILES = include/*.h examples/*.c tests/*.c tests/1/file tests/1/dir/* tests/2/* CMakeLists.txt ChangeLog README.md
 
 # Default target
 all: ls find
@@ -34,19 +34,22 @@ help:
 	@echo "  dist    Build distributable package"
 	@echo "  check   Run regression tests"
 
-# Wipe out temporary files left behind by MS-Visual Studio
+# Wipe out temporary files left behind by MS-Visual Studio and CMake
 clean:
-	rm -f ls find t-dirent
-	rm -f vs2008/*.suo vs2008/*.ncb
-	rm -f vs2008/*/*.user
-	rm -fr vs2008/Debug vs2008/*/Debug
-	rm -fr vs2008/Release vs2008/*/Release
+	rm -f ls find t-dirent t-compile locate updatedb
+	rm -fr Debug Release Testing
+	rm -fr *.dir
+	rm -f *.vcproj *.user
+	rm -fr CMakeFiles
+	rm -f CMakeCache.txt CTestTestfile.cmake cmake_install.cmake
+	rm -f dirent.ncb dirent.sln dirent.suo
+	rm -f DartConfiguration.tcl locate.db Makefile
 	rm -fr dirent-$(VERSION)
 	rm -f dirent-*.zip
 
 # Build installation package
 dist: dirent-$(VERSION).zip
-dirent-$(VERSION).zip: $(DIST_FILES) Makefile
+dirent-$(VERSION).zip: $(DIST_FILES)
 	rm -f dirent-$(VERSION).zip
 	rm -fr dirent-$(VERSION)
 	mkdir dirent-$(VERSION)
