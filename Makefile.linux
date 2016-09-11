@@ -11,7 +11,7 @@ VERSION=1.21
 DIST_FILES = include/*.h examples/*.c tests/*.c tests/1/file tests/1/dir/* tests/2/* vs2008/vs2008.sln vs2008/ls/ls.vcproj vs2008/find/find.vcproj vs2008/updatedb/updatedb.vcproj vs2008/locate/locate.vcproj vs2008/t-dirent/t-dirent.vcproj ChangeLog
 
 # Default target
-all: ls find t-dirent
+all: ls find
 
 # Build Linux versions of example programs
 ls: examples/ls.c
@@ -19,6 +19,10 @@ ls: examples/ls.c
 
 find: examples/find.c
 	gcc -W -Wall -o find examples/find.c
+
+# Run regression tests
+check: t-dirent
+	./t-dirent
 
 t-dirent: tests/t-dirent.c
 	gcc -W -Wall -o t-dirent tests/t-dirent.c
@@ -28,6 +32,7 @@ help:
 	@echo "Build targets available:"
 	@echo "  clean   Remove temporary files"
 	@echo "  dist    Build distributable package"
+	@echo "  check   Run regression tests"
 
 # Wipe out temporary files left behind by MS-Visual Studio
 clean:
