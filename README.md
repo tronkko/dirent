@@ -1,10 +1,7 @@
 # Dirent
-Dirent is a C/C++ programming interface that allows programs to retrieve
-information on files and directories residing on a hard disk.  Dirent is
-commonly found in Linux and other UNIX operating systems.
-
-This project provides Linux-compatible Dirent interface for Microsoft Visual
-Studio and Open Watcom to be used on Microsoft Windows.
+Dirent is a C/C++ programming interface that allows programmers to retrieve
+information about files and directories under Linux/UNIX.  This project
+provides Linux compatible Dirent interface for Microsoft Windows.
 
 
 # Installation
@@ -13,45 +10,54 @@ Download the latest Dirent installation package from
 [softagalleria.net](http://softagalleria.net/download/dirent/?C=M;O=D)
 
 Unpack the installation file with 7-zip, for example.  The installation
-package contains dirent.h file as well as a few example programs and a
-Visual Studio 2008 project for compiling them.  You will definitely need the
-``include/dirent.h`` file.
+package contains dirent.h file as well as a few example programs.
 
 
 ## Install Dirent for All Programs
 
-To make dirent.h available for all programs, copy the ``include/dirent.h``
-file from the installation package to system include directory.  System
-include directory contains header files such as assert.h and windows.h.  In
-Visual Studio 2008, for example, the system include directory may be found at
+To make dirent.h available for all C/C++ programs, simply copy the
+``include/dirent.h`` file to the system include directory.  System include
+directory contains header files such as assert.h and windows.h.  In Visual
+Studio 2008, for example, the system include may be found at
 ``C:\Program Files\Microsoft Visual Studio 9.0\VC\include``.
 
-Everything you need is included in the single dirent.h file.  Thus, you can
+Everything you need is included in the single dirent.h file, and you can
 start using Dirent immediately -- there is no need to add files to your
 Visual Studio project.
 
 
-## Embed Dirent into Your Own Program
+## Embed Dirent into Your Own Project
 
-As an alternative to the above installation method, you can also embed
-dirent.h into your own program -- just copy the ``include/dirent.h`` file to
-a suitable include directory in your project.  However, if you do so, please
-make sure that you include dirent.h by
+If you wish to distribute dirent.h alongside with your own source code, then
+copy ``include/dirent.h`` file to a new sub-directory within your project and
+add that directory to include path on Windows while omitting the directory
+under Linux/UNIX.  This allows your project to be compiled against native
+dirent.h on Linux/UNIX while substituting the functionality on Microsoft
+Windows.
+
+
+## Building Example Programs
+
+The installation package contains some example programs and tests under
+the directories examples and tests.  To run these programs, install
+[CMake](https://cmake.org/)
+
+Open command prompt, navigate to dirent directory with cd and generate
+build files as
 
 ```
-#include <dirent.h> /*good*/
+cmake .
 ```
 
-and not 
+Load the generated dirent.sln file into Visual Studio and build the
+solution.  Run the example programs from command prompt as
 
 ```
-#include "dirent.h" /*bad*/
+Debug\updatedb c:\
+Debug\locate cmd.exe
+Debug\ls .
+Debug\find .
 ```
-
-The former code instructs the compiler to look for dirent.h first from the
-system include directory and only then from your project specific include
-directory.  This arrangement allows your program to compile cleanly under
-Linux against the dirent.h file provided by the operating system.
 
 
 # Copying
@@ -68,3 +74,4 @@ both [Cygwin](http://www.cygwin.com) and [MingW](http://www.mingw.org)
 allow you to compile a great number of UNIX programs in Microsoft Windows.
 They both provide a full dirent API as well as many other UNIX APIs.  MingW
 can even be used for commercial applications!
+

@@ -10,8 +10,10 @@
  * https://github.com/tronkko/dirent
  */
 #include <dirent.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#ifdef WIN32
+#   include <winsock2.h>
+#   include <ws2tcpip.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
