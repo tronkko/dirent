@@ -3,15 +3,11 @@ project (dirent)
 
 enable_language (C)
 
-install (FILES include/dirent.h DESTINATION include)
-
-# Add include directory to path if current system omits dirent.h file.  This
-# step is imporant for compiling the test programs under Linux.
-include (CheckIncludeFiles)
-check_include_files (dirent.h HAVE_DIRENT_H)
-if (NOT HAVE_DIRENT_H)
+# Only use the dirent file on windows systems
+if (WIN32)
     include_directories (${CMAKE_SOURCE_DIR}/include)
-endif (NOT HAVE_DIRENT_H)
+    install (FILES include/dirent.h DESTINATION include)
+endif()
 
 # Build example programs
 add_executable (find examples/find.c)
