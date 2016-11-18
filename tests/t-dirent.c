@@ -17,9 +17,11 @@
 #ifdef _MSC_VER
 #   include <direct.h>
 #   define chdir(x) _chdir(x)
+#else
+#   include <unistd.h>
 #endif
 #include <sys/stat.h>
-#include "dirent.h"
+#include <dirent.h>
 
 #undef NDEBUG
 #include <assert.h>
@@ -80,7 +82,7 @@ main(
 #ifdef _D_ALLOC_NAMLEN
                 assert (_D_ALLOC_NAMLEN(ent) > 1);
 #endif
-                found |= 1;
+                found += 1;
 
             } else if (strcmp (ent->d_name, "..") == 0) {
                 /* Parent directory */
@@ -96,7 +98,7 @@ main(
 #ifdef _D_ALLOC_NAMLEN
                 assert (_D_ALLOC_NAMLEN(ent) > 2);
 #endif
-                found |= 2;
+                found += 2;
 
             } else if (strcmp (ent->d_name, "file") == 0) {
                 /* Regular file */
@@ -112,7 +114,7 @@ main(
 #ifdef _D_ALLOC_NAMLEN
                 assert (_D_ALLOC_NAMLEN(ent) > 4);
 #endif
-                found |= 4;
+                found += 4;
 
             } else if (strcmp (ent->d_name, "dir") == 0) {
                 /* Just a directory */
@@ -128,7 +130,7 @@ main(
 #ifdef _D_ALLOC_NAMLEN
                 assert (_D_ALLOC_NAMLEN(ent) > 3);
 #endif
-                found |= 8;
+                found += 8;
 
             } else {
                 /* Other file */
@@ -160,19 +162,19 @@ main(
             /* Check each file */
             if (strcmp (ent->d_name, ".") == 0) {
                 /* Directory itself */
-                found |= 1;
+                found += 1;
 
             } else if (strcmp (ent->d_name, "..") == 0) {
                 /* Parent directory */
-                found |= 2;
+                found += 2;
 
             } else if (strcmp (ent->d_name, "file") == 0) {
                 /* Regular file */
-                found |= 4;
+                found += 4;
 
             } else if (strcmp (ent->d_name, "dir") == 0) {
                 /* Just a directory */
-                found |= 8;
+                found += 8;
 
             } else {
                 /* Other file */
@@ -195,19 +197,19 @@ main(
             /* Check each file */
             if (strcmp (ent->d_name, ".") == 0) {
                 /* Directory itself */
-                found |= 1;
+                found += 1;
 
             } else if (strcmp (ent->d_name, "..") == 0) {
                 /* Parent directory */
-                found |= 2;
+                found += 2;
 
             } else if (strcmp (ent->d_name, "file") == 0) {
                 /* Regular file */
-                found |= 4;
+                found += 4;
 
             } else if (strcmp (ent->d_name, "dir") == 0) {
                 /* Just a directory */
-                found |= 8;
+                found += 8;
 
             } else {
                 /* Other file */
@@ -240,19 +242,19 @@ main(
             /* Check each file */
             if (strcmp (ent->d_name, ".") == 0) {
                 /* Directory itself */
-                found |= 1;
+                found += 1;
 
             } else if (strcmp (ent->d_name, "..") == 0) {
                 /* Parent directory */
-                found |= 2;
+                found += 2;
 
             } else if (strcmp (ent->d_name, "file") == 0) {
                 /* Regular file */
-                found |= 4;
+                found += 4;
 
             } else if (strcmp (ent->d_name, "dir") == 0) {
                 /* Just a directory */
-                found |= 8;
+                found += 8;
 
             } else {
                 /* Other file */
@@ -279,19 +281,19 @@ main(
             /* Check each file */
             if (strcmp (ent->d_name, ".") == 0) {
                 /* Directory itself */
-                found |= 1;
+                found += 1;
 
             } else if (strcmp (ent->d_name, "..") == 0) {
                 /* Parent directory */
-                found |= 2;
+                found += 2;
 
             } else if (strcmp (ent->d_name, "file") == 0) {
                 /* Regular file */
-                found |= 4;
+                found += 4;
 
             } else if (strcmp (ent->d_name, "dir") == 0) {
                 /* Just a directory */
-                found |= 8;
+                found += 8;
 
             } else {
                 /* Other file */
@@ -330,11 +332,11 @@ main(
             /* Check each file */
             if (strcmp (ent->d_name, ".") == 0) {
                 /* Directory itself */
-                found |= 1;
+                found += 1;
 
             } else if (strcmp (ent->d_name, "..") == 0) {
                 /* Parent directory */
-                found |= 2;
+                found += 2;
 
             } else if (strcmp (ent->d_name, "file.txt") == 0) {
                 /* Regular 8+3 filename */
@@ -350,7 +352,7 @@ main(
 #ifdef _D_ALLOC_NAMLEN
                 assert (_D_ALLOC_NAMLEN(ent) > 8);
 #endif
-                found |= 4;
+                found += 4;
 
             } else if (strcmp (ent->d_name, "Testfile-1.2.3.dat") == 0) {
                 /* Long file name with multiple dots */
@@ -366,7 +368,7 @@ main(
 #ifdef _D_ALLOC_NAMLEN
                 assert (_D_ALLOC_NAMLEN(ent) > 18);
 #endif
-                found |= 8;
+                found += 8;
 
             } else {
                 /* Other file */

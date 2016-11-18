@@ -29,8 +29,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
-#include <io.h>
-#include <fcntl.h>
+#ifdef WIN32
+#   include <io.h>
+#   include <fcntl.h>
+#endif
 #include <dirent.h>
 
 /* File name and location of database file */
@@ -52,6 +54,7 @@ int
 main(
     int argc, char *argv[]) 
 {
+#ifdef WIN32
     int i;
     int ok;
 
@@ -90,6 +93,9 @@ main(
     }
 
     db_close ();
+#else
+    printf ("updatedb only works on Microsoft Windows\n");
+#endif
 
     return EXIT_SUCCESS;
 }
@@ -99,12 +105,14 @@ static int
 update_directory(
     const wchar_t *dirname)
 {
+    int ok = 0;
+
+#ifdef WIN32
     _WDIR *dir;
     wchar_t buffer[PATH_MAX + 2];
     wchar_t *p = buffer;
     const wchar_t *src;
     wchar_t *end = &buffer[PATH_MAX];
-    int ok;
 
     /* Copy directory name to buffer */
     src = dirname;
@@ -173,6 +181,8 @@ update_directory(
         ok = 0;
 
     }
+#endif
+
     return ok;
 }
 
@@ -181,6 +191,7 @@ static void
 db_store(
     const wchar_t *dirname)
 {
+#ifdef WIN32
     if (db) {
         /* Output line to file */
         fwprintf (db, L"%s\n", dirname);
@@ -188,6 +199,7 @@ db_store(
         wprintf (L"Database not open\n");
         exit (EXIT_FAILURE);
     }
+#endif
 }
 
 /* Open database file locate.db */
@@ -195,6 +207,7 @@ static void
 db_open(
     void)
 {
+#ifdef WIN32
     if (db == NULL) {
         errno_t error;
 
@@ -205,6 +218,7 @@ db_open(
             exit (EXIT_FAILURE);
         }
     }
+#endif
 }
 
 /* Close database file */

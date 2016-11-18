@@ -1,4 +1,8 @@
-2015-09-25  Toni Rönkkö
+2016-09-11  Toni Rönkkö
+
+	* Version 1.22: added support for CMake.  Thanks to Paul Fultz II. 
+
+2014-09-25  Toni Rönkkö
 
 	* Version 1.21: compiles correctly under Open Watcom.  Thanks to
 	Virgil Banowetz for a patch!
