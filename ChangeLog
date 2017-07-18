@@ -1,3 +1,8 @@
+2017-07-18  Toni Rönkkö
+
+	* Created release branches v1.22 and v1.21 to Git.  Published version
+	1.22 at softagalleria.net.
+
 2016-09-11  Toni Rönkkö
 
 	* Version 1.22: added support for CMake.  Thanks to Paul Fultz II. 
