@@ -8,7 +8,7 @@
 VERSION=1.22
 
 # List of files to include in zip package
-DIST_FILES = include/*.h examples/*.c tests/*.c tests/1/file tests/1/dir/* tests/2/* CMakeLists.txt ChangeLog README.md
+DIST_FILES = include/*.h examples/*.c tests/*.c tests/1/file tests/1/dir/* tests/2/* CMakeLists.txt ChangeLog README.md LICENSE
 
 # Default target
 all: ls find
