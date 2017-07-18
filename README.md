@@ -7,7 +7,9 @@ provides Linux compatible Dirent interface for Microsoft Windows.
 # Installation
 
 Download the latest Dirent installation package from
-[softagalleria.net](http://softagalleria.net/download/dirent/?C=M;O=D)
+[GitHub](https://github.com/tronkko/dirent/releases).
+Older versions can be found at
+[softagalleria.net](http://softagalleria.net/download/dirent/?C=M;O=D).
 
 Unpack the installation file with 7-zip, for example.  The installation
 package contains dirent.h file as well as a few example programs.
@@ -40,7 +42,7 @@ Windows.
 
 The installation package contains some example programs and tests under
 the directories examples and tests.  To run these programs, install
-[CMake](https://cmake.org/)
+[CMake](https://cmake.org/).
 
 Open command prompt, navigate to dirent directory with cd and generate
 build files as
