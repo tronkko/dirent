@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8.11)
-project (dirent)
+project (dirent LANGUAGES C)
 
 enable_language (C)
 
