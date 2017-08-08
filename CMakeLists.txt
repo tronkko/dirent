@@ -12,6 +12,12 @@ else()
     add_custom_target(install) # Fake install target
 endif()
 
+# Add distclean target
+add_custom_target (distclean
+    COMMAND ${CMAKE_BUILD_TOOL} clean
+    COMMAND ${CMAKE_COMMAND} -P distclean.cmake
+)
+
 # Build example programs
 add_executable (find examples/find.c)
 add_executable (ls examples/ls.c)
