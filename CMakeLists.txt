@@ -15,7 +15,7 @@ endif()
 # Add distclean target
 add_custom_target (distclean
     COMMAND ${CMAKE_BUILD_TOOL} clean
-    COMMAND ${CMAKE_COMMAND} -P distclean.cmake
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/distclean.cmake
 )
 
 # Build example programs
