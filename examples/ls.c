@@ -1,9 +1,8 @@
 /* 
  * An example demonstrating basic directory listing.
  *
- * Compile this file with Visual Studio 2008 project vs2008.sln and run the
- * produced command in console with a directory name argument.  For example,
- * command
+ * Compile this file with Visual Studio and run the produced command in
+ * console with a directory name argument.  For example, command
  *
  *     ls "c:\Program Files"
  *
@@ -17,9 +16,9 @@
  *     Microsoft.NET/
  *     Mozilla Firefox/
  *
- * The ls command provided by this file is only an example.  That is, the
- * command does not have any fancy options like "ls -al" in Linux and the
- * command does not support file name matching like "ls *.c".
+ * The ls command provided by this file is only an example: the command does
+ * not have any fancy options like "ls -al" in Linux and the command does not
+ * support file name matching like "ls *.c".
  *
  * Copyright (C) 2006-2012 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed

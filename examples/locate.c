@@ -1,13 +1,13 @@
 /*
  * A file look-up utility to complement updatedb
  *
- * Compile and run updatedb first to create locate.db file.  Then, compile
- * this program with the same Visual Studio 2008 project file and run the
- * program in console with a file name argument.  For example, command
+ * Compile and run updatedb command first to create locate.db file.  Then,
+ * compile this program with Visual Studio and run the program in console with
+ * a file name argument.  For example, the command
  *
  *     locate autoexec
  *
- * might output
+ * might output something like
  *
  *     c:/AUTOEXEC.BAT
  *     c:/WINDOWS/repair/autoexec.nt

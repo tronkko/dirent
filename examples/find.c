@@ -1,13 +1,12 @@
 /*
  * An example demonstrating recursive directory traversal.
  *
- * Compile this file with Visual Studio 2008 project vs2008.sln and run
- * the produced command in console with a directory name argument.  For
- * example, command
+ * Compile this file with Visual Studio and run the produced command in
+ * console with a directory name argument.  For example, command
  *
  *     find "C:\Program Files"
  *
- * might produce a listing with thousands of entries such as
+ * will output thousands of file names such as
  *
  *     c:\Program Files/7-Zip/7-zip.chm
  *     c:\Program Files/7-Zip/7-zip.dll
@@ -17,9 +16,9 @@
  *     c:\Program Files/Windows NT/Accessories/wordpad.exe
  *     c:\Program Files/Windows NT/Accessories/write.wpc
  *
- * The find command provided by this file is only an example.  That is,
- * the command does not provide options to restrict the output to certain
- * files as the Linux version does.
+ * The find command provided by this file is only an example: the command does
+ * not provide options to restrict the output to certain files as the Linux
+ * version does.
  *
  * Copyright (C) 2006-2012 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed

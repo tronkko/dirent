@@ -1,13 +1,12 @@
 /*
  * An example demonstrating wide-character functions
  *
- * Compile this file with Visual Studio 2008 project vs2008.sln and run
- * the produced command in console with a directory name argument.  For
- * example, command
+ * Compile this file with Visual Studio and run the produced command in
+ * console with a directory name argument.  For example, command
  *
  *     updatedb C:\
  *
- * will produce file locate.db containing lines such as
+ * will produce the file locate.db with one file name per line such as
  *
  *     c:\Program Files/7-Zip/7-zip.chm
  *     c:\Program Files/7-Zip/7-zip.dll
@@ -17,8 +16,8 @@
  *     c:\Program Files/Windows NT/Accessories/wordpad.exe
  *     c:\Program Files/Windows NT/Accessories/write.wpc
  *
- * Be ware that this code is not compatible with Linux or other major
- * Unixes.  Linux does not even have wide-character version of dirent!
+ * Be ware that this file uses wide-character API which is not compatible
+ * with Linux or other major Unixes.
  *
  * Copyright (C) 2006-2012 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed
@@ -176,7 +175,7 @@ update_directory(
         ok = 1;
 
     } else {
-    
+
         /* Cannot open directory */
         ok = 0;
 
