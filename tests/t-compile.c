@@ -19,9 +19,29 @@ int
 main(
     int argc, char *argv[]) 
 {
+    struct dirent *dirp = NULL;
+
     (void) argc;
     (void) argv;
+
+#ifdef _DIRENT_HAVE_D_TYPE
+    printf ("Has d_type\n");
+#endif
+#ifdef _DIRENT_HAVE_D_NAMLEN
+    printf ("Has d_namlen\n");
+#endif
+#ifdef _D_EXACT_NAMLEN
+    printf ("Has _D_EXACT_NAMLEN\n");
+#endif
+#ifdef _D_ALLOC_NAMLEN
+    printf ("Has _D_ALLOC_NAMLEN\n");
+#endif
+#ifdef _D_ALLOC_NAMLEN
+    printf ("Has _D_ALLOC_NAMLEN\n");
+#endif
+    printf ("Length of d_name with termitor: %d\n", sizeof (dirp->d_name));
 
     printf ("OK\n");
     return EXIT_SUCCESS;
 }
+

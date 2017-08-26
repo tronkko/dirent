@@ -1,10 +1,10 @@
 /*
- * An example demonstrating basic directory listing.
+ * Example program demonstrating the use of scandir function.
  *
  * Compile this file with Visual Studio and run the produced command in
  * console with a directory name argument.  For example, command
  *
- *     ls "c:\Program Files"
+ *     scandir "c:\Program Files"
  *
  * might output something like
  *
@@ -15,10 +15,6 @@
  *     Microsoft Visual Studio 9.0/
  *     Microsoft.NET/
  *     Mozilla Firefox/
- *
- * The ls command provided by this file is only an example: the command does
- * not have any fancy options like "ls -al" in Linux and the command does not
- * support file name matching like "ls *.c".
  *
  * Copyright (C) 2006-2012 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed
@@ -60,15 +56,22 @@ static void
 list_directory(
     const char *dirname)
 {
-    DIR *dir;
-    struct dirent *ent;
+    struct dirent **files;
+    int i;
+    int n;
 
-    /* Open directory stream */
-    dir = opendir (dirname);
-    if (dir != NULL) {
+    /* Scan files in directory */
+    n = scandir (dirname, &files, NULL, alphasort);
+    if (n >= 0) {
 
-        /* Print all files and directories within the directory */
-        while ((ent = readdir (dir)) != NULL) {
+        /* Loop through file names */
+        for (i = 0; i < n; i++) {
+            struct dirent *ent;
+
+            /* Get pointer to file entry */
+            ent = files[i];
+
+            /* Output file name */
             switch (ent->d_type) {
             case DT_REG:
                 printf ("%s\n", ent->d_name);
@@ -85,14 +88,18 @@ list_directory(
             default:
                 printf ("%s*\n", ent->d_name);
             }
+
         }
 
-        closedir (dir);
+        /* Release file names */
+        for (i = 0; i < n; i++) {
+            free (files[i]);
+        }
+        free (files);
 
     } else {
-        /* Could not open directory */
         printf ("Cannot open directory %s\n", dirname);
-        exit (EXIT_FAILURE);
     }
 }
+
 

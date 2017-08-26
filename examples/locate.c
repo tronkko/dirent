@@ -104,7 +104,7 @@ db_locate(
 
     /* Open locate.db for read */
     db_open ();
-    
+
     /* Read one directory and file name at a time from database file */
     while (db_read (buffer, PATH_MAX)) {
         /* See if file name in buffer matches the search pattern */
