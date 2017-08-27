@@ -1,6 +1,6 @@
 /*
  * Dirent interface for Microsoft Visual Studio
- * Version 1.23-b1
+ * Version 1.23
  *
  * Copyright (C) 2006-2012 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed
