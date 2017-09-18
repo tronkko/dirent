@@ -914,7 +914,7 @@ scandir(
                 p = realloc (files, sizeof (void*) * num_entries);
                 if (p != NULL) {
                     /* Got the memory */
-                    files = p;
+                    files = (dirent**) p;
                     allocated = num_entries;
                 } else {
                     /* Out of memory */
@@ -965,7 +965,7 @@ scandir(
                      * End of directory stream reached => sort entries and
                      * exit.
                      */
-                    qsort (files, size, sizeof (void*), (void*) compare);
+                    qsort (files, size, sizeof (void*), compare);
                     break;
 
                 }

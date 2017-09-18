@@ -1,8 +1,8 @@
 cmake_minimum_required (VERSION 2.8.11)
-project (dirent LANGUAGES C)
+project (dirent LANGUAGES C CXX)
 
-# Initialize C compiler only (don't require C++ compiler)
-enable_language (C)
+# Initialize C and C++ compilers
+enable_language (C CXX)
 
 # Compile in debug mode by default
 if (NOT CMAKE_BUILD_TYPE)
@@ -13,14 +13,18 @@ if (NOT CMAKE_BUILD_TYPE)
     )
 endif (NOT CMAKE_BUILD_TYPE)
 
-# Only use the dirent file on windows systems
+# Use the include directory only on Windows
 if (WIN32)
     include_directories (${CMAKE_SOURCE_DIR}/include)
+endif (WIN32)
+
+# Install dirent.h
+if (WIN32)
     install (FILES include/dirent.h DESTINATION include)
-else()
+else (WIN32)
     cmake_policy(SET CMP0037 OLD) # Supress warnings about fake install
     add_custom_target(install) # Fake install target
-endif()
+endif (WIN32)
 
 # Add distclean target
 add_custom_target (distclean
@@ -47,4 +51,5 @@ endfunction (add_test_executable)
 add_test_executable (t-compile tests/t-compile.c)
 add_test_executable (t-dirent tests/t-dirent.c)
 add_test_executable (t-scandir tests/t-scandir.c)
+add_test_executable (t-cplusplus tests/t-cplusplus.cpp)
 
