@@ -12,6 +12,11 @@
 #include <assert.h>
 using namespace std;
 
+
+/* Filter and sort functions */
+static int only_readme (const struct dirent *entry);
+
+
 int
 main(
     int argc, char *argv[]) 
@@ -114,7 +119,43 @@ main(
         closedir (dir);
     }
 
+    /* Basic scan with simple filter function */
+    {
+        struct dirent **files;
+        int n;
+        int i;
+
+        /* Read directory entries */
+        n = scandir ("tests/3", &files, only_readme, alphasort);
+        assert (n == 1);
+
+        /* Make sure that the filter works */
+        assert (strcmp (files[0]->d_name, "README.txt") == 0);
+
+        /* Release file names */
+        for (i = 0; i < n; i++) {
+            free (files[i]);
+        }
+        free (files);
+    }
+
+
     cout << "OK" << endl;
     return EXIT_SUCCESS;
+}
+
+/* Only pass README.txt file */
+static int
+only_readme (const struct dirent *entry)
+{
+    int pass;
+
+    if (strcmp (entry->d_name, "README.txt") == 0) {
+        pass = 1;
+    } else {
+        pass = 0;
+    }
+
+    return pass;
 }
 
