@@ -1,3 +1,7 @@
+2018-05-08  Toni Rönkkö
+
+	* Version 1.23.2: fixes bad scandir prototype.
+
 2017-08-27  Toni Rönkkö
 
 	* Version 1.23: support readdir_r and scandir functions.
