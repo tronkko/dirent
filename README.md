@@ -7,12 +7,10 @@ provides Linux compatible Dirent interface for Microsoft Windows.
 # Installation
 
 Download the latest Dirent installation package from
-[GitHub](https://github.com/tronkko/dirent/releases).
-Older versions can be found at
-[softagalleria.net](http://softagalleria.net/download/dirent/?C=M;O=D).
-
-Unpack the installation file with 7-zip, for example.  The installation
-package contains dirent.h file as well as a few example programs.
+[GitHub](https://github.com/tronkko/dirent/releases) and
+unpack the installation file with 7-zip, for example.  The installation
+package contains dirent.h file as well as a few example programs and
+tests.
 
 
 ## Install Dirent for All Programs
@@ -38,27 +36,43 @@ dirent.h on Linux/UNIX while substituting the functionality on Microsoft
 Windows.
 
 
-## Building Example Programs
+## Examples
 
-The installation package contains some example programs and tests under
-the directories examples and tests.  To run these programs, install
-[CMake](https://cmake.org/).
+The installation package contains four example programs:
 
-Open command prompt, navigate to dirent directory with cd and generate
-build files as
+Program  | Purpose
+-------- | -----------------------------------------------------------------
+ls       | List files in a directory, e.g. ls "c:\Program Files"
+find     | Find files in subdirectories, e.g. find "c:\Program Files\CMake"
+updatedb | Build database of files in a drive, e.g. updatedb c:\
+locate   | Locate a file from database, e.g. locate notepad.exe
+
+To build the example programs, install [CMake](https://cmake.org/).
+Then, open command prompt and create a build directory as
+
+```
+c:\
+mkdir temp
+mkdir temp\dirent
+cd temp\dirent
+```
+
+Generate build files as
 
 ```
 cmake .
 ```
 
-Load the generated dirent.sln file into Visual Studio and build the
-solution.  Run the example programs from command prompt as
+Open Visual Studio, load the generated dirent.sln file from the build
+directory and build the solution.  Once ready, you can run the example
+programs from the command prompt as
 
 ```
-Debug\updatedb c:\
-Debug\locate cmd.exe
-Debug\ls .
-Debug\find .
+cd Debug
+ls .
+find .
+updatedb c:\
+locate cmd.exe
 ```
 
 

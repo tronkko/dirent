@@ -366,7 +366,7 @@ _wopendir(
         /* Compute the length of full path plus zero terminator
          *
          * Note that on WinRT there's no way to convert relative paths
-         * into absolute paths, so just assume its an absolute path.
+         * into absolute paths, so just assume it is an absolute path.
          */
 #       if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
             n = wcslen(dirname);
@@ -384,7 +384,7 @@ _wopendir(
              * working directory is changed between opendir() and rewinddir().
              *
              * Note that on WinRT there's no way to convert relative paths
-             * into absolute paths, so just assume its an absolute path.
+             * into absolute paths, so just assume it is an absolute path.
              */
 #           if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
                 wcsncpy_s(dirp->patt, n+1, dirname, n);
@@ -451,7 +451,7 @@ _wopendir(
 /*
  * Read next directory entry.
  *
- * Returns pointer to static directory entry which may be overwritted by
+ * Returns pointer to static directory entry which may be overwritten by
  * subsequent calls to _wreaddir().
  */
 static struct _wdirent*
@@ -642,7 +642,7 @@ dirent_next(
             /* Got a file */
             p = &dirp->data;
         } else {
-            /* The very last entry has been processed or an error occured */
+            /* The very last entry has been processed or an error occurred */
             FindClose (dirp->handle);
             dirp->handle = INVALID_HANDLE_VALUE;
             p = NULL;
@@ -741,7 +741,7 @@ readdir(
 /*
  * Read next directory entry into called-allocated buffer.
  *
- * Returns zero on sucess.  If the end of directory stream is reached, then
+ * Returns zero on success.  If the end of directory stream is reached, then
  * sets result to NULL and returns zero.
  */
 static int
@@ -803,7 +803,7 @@ readdir_r(
 
             /*
              * Cannot convert file name to multi-byte string so construct
-             * an errornous directory entry and return that.  Note that
+             * an erroneous directory entry and return that.  Note that
              * we cannot return NULL as that would stop the processing
              * of directory entries completely.
              */
@@ -936,7 +936,7 @@ scandir(
             /* Read directory entry to temporary area */
             if (readdir_r (dir, tmp, &entry) == /*OK*/0) {
 
-                /* Did we got an entry? */
+                /* Did we get an entry? */
                 if (entry != NULL) {
                     int pass;
 
@@ -1060,7 +1060,7 @@ dirent_mbstowcs_s(
             wcstr[n] = 0;
         }
 
-        /* Length of resuting multi-byte string WITH zero terminator */
+        /* Length of resulting multi-byte string WITH zero terminator */
         if (pReturnValue) {
             *pReturnValue = n + 1;
         }
