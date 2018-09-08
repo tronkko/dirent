@@ -49,7 +49,7 @@ static FILE *db = NULL;
 
 int
 main(
-    int argc, char *argv[]) 
+    int argc, char *argv[])
 {
 #ifdef WIN32
     int i;
@@ -125,7 +125,7 @@ db_locate(
 /* Match pattern against file name */
 static int
 db_match(
-    const wchar_t *fn, const wchar_t *pattern) 
+    const wchar_t *fn, const wchar_t *pattern)
 {
     int found = 0;
 
@@ -182,7 +182,7 @@ db_match(
     return found;
 }
 
-/* 
+/*
  * Read line from locate.db.  This function is same as fgetws() except
  * that new-line at the end of line is not included.
  */
