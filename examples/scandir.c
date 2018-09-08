@@ -31,7 +31,7 @@ static void list_directory (const char *dirname);
 
 int
 main(
-    int argc, char *argv[]) 
+    int argc, char *argv[])
 {
     int i;
 

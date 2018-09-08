@@ -40,7 +40,7 @@
 
 	* Version 1.13.1: patch from Edward Berner fixes set_errno() on
 	Windows NT 4.0.
-	
+
 	* Revised wcstombs() and mbstowcs() wrappers to make sure that they do
 	not write past their target string.
 

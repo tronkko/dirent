@@ -17,7 +17,7 @@
 
 int
 main(
-    int argc, char *argv[]) 
+    int argc, char *argv[])
 {
     struct dirent *dirp = NULL;
 
