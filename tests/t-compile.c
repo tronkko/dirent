@@ -44,4 +44,3 @@ main(
     printf ("OK\n");
     return EXIT_SUCCESS;
 }
-

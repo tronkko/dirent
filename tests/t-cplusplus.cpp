@@ -158,4 +158,3 @@ only_readme (const struct dirent *entry)
 
     return pass;
 }
-
