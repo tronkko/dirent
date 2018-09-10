@@ -149,5 +149,3 @@ reverse_alpha(
 {
     return strcoll ((*b)->d_name, (*a)->d_name);
 }
-
-

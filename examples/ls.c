@@ -95,4 +95,3 @@ list_directory(
         exit (EXIT_FAILURE);
     }
 }
-

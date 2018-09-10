@@ -52,4 +52,3 @@ add_test_executable (t-compile tests/t-compile.c)
 add_test_executable (t-dirent tests/t-dirent.c)
 add_test_executable (t-scandir tests/t-scandir.c)
 add_test_executable (t-cplusplus tests/t-cplusplus.cpp)
-

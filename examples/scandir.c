@@ -101,5 +101,3 @@ list_directory(
         printf ("Cannot open directory %s\n", dirname);
     }
 }
-
-
