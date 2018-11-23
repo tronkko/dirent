@@ -1158,7 +1158,7 @@ dirent_wcstombs_s(
         /*
          * WideCharToMultiByte fails if we request information on default
          * characters.  This is just a nuisance but doesn't affect the
-         * converion: if Windows is configured to use UTF-8, then the default
+         * conversion: if Windows is configured to use UTF-8, then the default
          * character should not be needed anyway.
          */
         pflag = NULL;
