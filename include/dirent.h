@@ -8,7 +8,7 @@
  */
 #ifndef DIRENT_H
 #define DIRENT_H
-
+ 
 /*
  * Include windows.h without Windows Sockets 1.1 to prevent conflicts with
  * Windows Sockets 2.0.
@@ -1098,7 +1098,7 @@ dirent_mbstowcs_s(
         /* Pointer to string to convert */ mbstr,
         /* Size of multi-byte string */ (int) len,
         /* Pointer to output buffer */ wcstr,
-        /* Size of output buffer */ sizeInWords - 1
+        /* Size of output buffer */ (int)sizeInWords - 1
     );
 
     /* Ensure that output buffer is zero-terminated */
@@ -1179,7 +1179,7 @@ dirent_wcstombs_s(
         /* Pointer to unicode string */ wcstr,
         /* Length of unicode string */ (int) len,
         /* Pointer to output buffer */ mbstr,
-        /* Size of output buffer */ sizeInBytes - 1,
+        /* Size of output buffer */ (int)sizeInBytes - 1,
         /* Default character */ NULL,
         /* Whether default character was used or not */ pflag
     );
