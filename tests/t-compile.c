@@ -39,7 +39,8 @@ main(
 #ifdef _D_ALLOC_NAMLEN
     printf ("Has _D_ALLOC_NAMLEN\n");
 #endif
-    printf ("Length of d_name with termitor: %d\n", sizeof (dirp->d_name));
+    printf ("Length of d_name with terminator: %d\n",
+        (int) sizeof (dirp->d_name));
 
     printf ("OK\n");
     return EXIT_SUCCESS;
