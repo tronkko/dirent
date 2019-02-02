@@ -16,6 +16,7 @@
 #endif
 #include <sys/stat.h>
 #include <dirent.h>
+#include <errno.h>
 
 #undef NDEBUG
 #include <assert.h>
@@ -106,6 +107,24 @@ main(
             free (files[i]);
         }
         free (files);
+    }
+
+    /* Trying to read from non-existent directory leads to an error */
+    {
+        files = NULL;
+        n = scandir ("tests/invalid", &files, NULL, alphasort);
+        assert (n == -1);
+        assert (files == NULL);
+        assert (errno == ENOENT);
+    }
+
+    /* Trying to open file as a directory produces ENOTDIR error */
+    {
+        files = NULL;
+        n = scandir ("tests/3/666.dat", &files, NULL, alphasort);
+        assert (n == -1);
+        assert (files == NULL);
+        assert (errno == ENOTDIR);
     }
 
     printf ("OK\n");

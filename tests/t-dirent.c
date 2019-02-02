@@ -17,6 +17,7 @@
 #endif
 #include <sys/stat.h>
 #include <dirent.h>
+#include <errno.h>
 
 #undef NDEBUG
 #include <assert.h>
@@ -139,6 +140,26 @@ main(
         assert (found == 0xf);
 
         closedir (dir);
+    }
+
+    /* Function opendir() fails if directory doesn't exist */
+    {
+        DIR *dir;
+
+        /* Open directory */
+        dir = opendir ("tests/invalid");
+        assert (dir == NULL);
+        assert (errno == ENOENT);
+    }
+
+    /* Function opendir() fails if pathname is really a file */
+    {
+        DIR *dir;
+
+        /* Open directory */
+        dir = opendir ("tests/1/file");
+        assert (dir == NULL);
+        assert (errno == ENOTDIR);
     }
 
     /* Rewind of directory stream */

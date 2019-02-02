@@ -363,13 +363,14 @@ _wopendir(
         dirp->patt = NULL;
         dirp->cached = 0;
 
-        /* Compute the length of full path plus zero terminator
+        /*
+         * Compute the length of full path plus zero terminator
          *
          * Note that on WinRT there's no way to convert relative paths
          * into absolute paths, so just assume it is an absolute path.
          */
 #       if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
-            n = wcslen(dirname);
+            n = wcslen (dirname);
 #       else
             n = GetFullPathNameW (dirname, 0, NULL, NULL);
 #       endif
@@ -387,7 +388,7 @@ _wopendir(
              * into absolute paths, so just assume it is an absolute path.
              */
 #           if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
-                wcsncpy_s(dirp->patt, n+1, dirname, n);
+                wcsncpy_s (dirp->patt, n+1, dirname, n);
 #           else
                 n = GetFullPathNameW (dirname, n, dirp->patt, NULL);
 #           endif
@@ -420,12 +421,10 @@ _wopendir(
                 } else {
                     /* Cannot retrieve first entry */
                     error = 1;
-                    dirent_set_errno (ENOENT);
                 }
 
             } else {
                 /* Cannot retrieve full path name */
-                dirent_set_errno (ENOENT);
                 error = 1;
             }
 
@@ -592,6 +591,7 @@ dirent_first(
     _WDIR *dirp)
 {
     WIN32_FIND_DATAW *datap;
+    DWORD error;
 
     /* Open directory and retrieve the first entry */
     dirp->handle = FindFirstFileExW(
@@ -605,9 +605,28 @@ dirent_first(
 
     } else {
 
-        /* Failed to re-open directory: no directory entry in memory */
+        /* Failed to open directory: no directory entry in memory */
         dirp->cached = 0;
         datap = NULL;
+
+        /* Set error code */
+        error = GetLastError ();
+        switch (error) {
+        case ERROR_ACCESS_DENIED:
+            /* No read access to directory */
+            dirent_set_errno (EACCES);
+            break;
+
+        case ERROR_DIRECTORY:
+            /* Directory name is invalid */
+            dirent_set_errno (ENOTDIR);
+            break;
+
+        case ERROR_PATH_NOT_FOUND:
+        default:
+            /* Cannot find the file */
+            dirent_set_errno (ENOENT);
+        }
 
     }
     return datap;

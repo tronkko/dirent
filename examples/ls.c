@@ -25,6 +25,7 @@
  * under the MIT license.  For all details and documentation, see
  * https://github.com/tronkko/dirent
  */
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,7 +92,7 @@ list_directory(
 
     } else {
         /* Could not open directory */
-        printf ("Cannot open directory %s\n", dirname);
+        printf ("Cannot open directory %s (%s)\n", dirname, strerror (errno));
         exit (EXIT_FAILURE);
     }
 }
