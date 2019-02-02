@@ -548,14 +548,10 @@ _wclosedir(
         /* Release search handle */
         if (dirp->handle != INVALID_HANDLE_VALUE) {
             FindClose (dirp->handle);
-            dirp->handle = INVALID_HANDLE_VALUE;
         }
 
         /* Release search pattern */
-        if (dirp->patt) {
-            free (dirp->patt);
-            dirp->patt = NULL;
-        }
+        free (dirp->patt);
 
         /* Release directory structure */
         free (dirp);
@@ -711,7 +707,7 @@ opendir(
     }
 
     /* Clean up in case of error */
-    if (error  &&  dirp) {
+    if (error) {
         free (dirp);
         dirp = NULL;
     }
@@ -984,9 +980,7 @@ scandir(
     }
 
     /* Release temporary directory entry */
-    if (tmp) {
-        free (tmp);
-    }
+    free (tmp);
 
     /* Release allocated memory on error */
     if (result < 0) {
