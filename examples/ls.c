@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <errno.h>
 
 static void list_directory (const char *dirname);
 
