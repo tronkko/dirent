@@ -82,8 +82,8 @@ locate cmd.exe
 
 # Copying
 
-Dirent may be freely distributed under the MIT license.  See the LICENSE
-file for details.
+Dirent may be freely distributed under the MIT license.  See the
+[LICENSE](LICENSE) file for details.
 
 
 # Alternatives to Dirent
