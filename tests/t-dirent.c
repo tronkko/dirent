@@ -162,6 +162,16 @@ main(
         assert (errno == ENOTDIR);
     }
 
+    /* Function opendir() fails if pathname is a zero-length string */
+    {
+        DIR *dir;
+
+        /* Open directory */
+        dir = opendir ("");
+        assert (dir == NULL);
+        assert (errno == ENOENT);
+    }
+
     /* Rewind of directory stream */
     {
         DIR *dir;
