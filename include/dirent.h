@@ -9,6 +9,14 @@
 #ifndef DIRENT_H
 #define DIRENT_H
 
+#if defined(__clang__)
+#	pragma clang diagnostic ignored "-Wunused-function"
+#elif defined(_MSC_VER)
+#	pragma warning(disable:4505) // error C4505: '_wreaddir': unreferenced local function has been removed
+#else
+#	pragma GCC diagnostic ignored "-Wunused-function"
+#endif // _MSC_VER
+
 /*
  * Include windows.h without Windows Sockets 1.1 to prevent conflicts with
  * Windows Sockets 2.0.
@@ -371,7 +379,7 @@ _wopendir(
      * Note that on WinRT there's no way to convert relative paths
      * into absolute paths, so just assume it is an absolute path.
      */
-#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+#if defined(WINAPI_FAMILY) && defined(WINAPI_FAMILY_PHONE_APP) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
     /* WinRT */
     n = wcslen (dirname);
 #else
@@ -393,7 +401,7 @@ _wopendir(
      * Note that on WinRT there's no way to convert relative paths
      * into absolute paths, so just assume it is an absolute path.
      */
-#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+#if defined(WINAPI_FAMILY) && defined(WINAPI_FAMILY_PHONE_APP) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
     /* WinRT */
     wcsncpy_s (dirp->patt, n+1, dirname, n);
 #else
