@@ -6,17 +6,18 @@
  * under the MIT license.  For all details and documentation, see
  * https://github.com/tronkko/dirent
  */
+
+/* Silence warning about fopen being insecure */
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef _MSC_VER
-#   include <direct.h>
-#else
-#   include <unistd.h>
-#endif
 #include <sys/stat.h>
 #include <dirent.h>
 #include <errno.h>
+#include <time.h>
+#include <limits.h>
 
 #undef NDEBUG
 #include <assert.h>
@@ -38,6 +39,9 @@ main(
 
     (void) argc;
     (void) argv;
+
+    /* Initialize random number generator */
+    srand ((unsigned) time (NULL));
 
     /* Basic scan with simple filter function */
     {
@@ -125,6 +129,96 @@ main(
         assert (n == -1);
         assert (files == NULL);
         assert (errno == ENOTDIR);
+    }
+
+    /* Scan large directory */
+    {
+        char dirname[PATH_MAX+1];
+        int i, j;
+        int ok;
+
+        /* Copy name of temporary directory to variable dirname */
+#ifdef WIN32
+        i = GetTempPathA (PATH_MAX, dirname);
+        assert (i > 0);
+#else
+        strcpy (dirname, "/tmp/");
+        i = strlen (dirname);
+#endif
+
+        /* Append random characters to dirname */
+        for (j = 0; j < 10; j++) {
+            char c;
+
+            /* Generate random character */
+            c = "abcdefghijklmnopqrstuvwxyz"[rand() % 26];
+
+            /* Append character to dirname */
+            assert (i < PATH_MAX);
+            dirname[i++] = c;
+        }
+
+        /* Terminate directory name */
+        assert (i < PATH_MAX);
+        dirname[i] = '\0';
+
+        /* Create directory */
+#ifdef WIN32
+        ok = CreateDirectoryA (dirname, NULL);
+        assert (ok);
+#else
+        ok = mkdir (dirname, 0700);
+        assert (ok == /*success*/0);
+#endif
+
+        /* Create one thousand files */
+        assert (i + 5 < PATH_MAX);
+        for (j = 0; j < 1000; j++) {
+            FILE *fp;
+
+            /* Construct file name */
+            dirname[i] = '/';
+            dirname[i+1] = 'z';
+            dirname[i+2] = '0' + ((j / 100) % 10);
+            dirname[i+3] = '0' + ((j / 10) % 10);
+            dirname[i+4] = '0' + (j % 10);
+            dirname[i+5] = '\0';
+
+            /* Create file */
+            fp = fopen (dirname, "w");
+            assert (fp != NULL);
+            fclose (fp);
+
+        }
+
+        /* Cut out the file name part */
+        dirname[i] = '\0';
+
+        /* Scan directory */
+        n = scandir (dirname, &files, no_directories, alphasort);
+        assert (n == 1000);
+
+        /* Make sure that all 1000 files are read back */
+        for (j = 0; j < n; j++) {
+            char match[100];
+
+            /* Construct file name */
+            match[0] = 'z';
+            match[1] = '0' + ((j / 100) % 10);
+            match[2] = '0' + ((j / 10) % 10);
+            match[3] = '0' + (j % 10);
+            match[4] = '\0';
+
+            /* Make sure that file name matches that on the disk */
+            assert (strcmp (files[j]->d_name, match) == 0);
+
+        }
+
+        /* Release file names */
+        for (j = 0; j < n; j++) {
+            free (files[j]);
+        }
+        free (files);
     }
 
     printf ("OK\n");
