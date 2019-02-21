@@ -1047,6 +1047,7 @@ dirent_mbstowcs_s(
     DWORD flags;
 
     /* Determine code page for multi-byte string */
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
     if (AreFileApisANSI ()) {
         /* Default ANSI code page */
         cp = GetACP ();
@@ -1054,6 +1055,9 @@ dirent_mbstowcs_s(
         /* Default OEM code page */
         cp = GetOEMCP ();
     }
+#else
+    cp = CP_ACP;
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 
     /*
      * Determine flags based on the character set.  For more information,
@@ -1138,6 +1142,7 @@ dirent_wcstombs_s(
     LPBOOL pflag;
 
     /* Determine code page for multi-byte string */
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
     if (AreFileApisANSI ()) {
         /* Default ANSI code page */
         cp = GetACP ();
@@ -1145,6 +1150,10 @@ dirent_wcstombs_s(
         /* Default OEM code page */
         cp = GetOEMCP ();
     }
+#else
+    cp = CP_ACP;
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+
 
     /* Compute the length of input string without zero-terminator */
     len = 0;
