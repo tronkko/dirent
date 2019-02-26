@@ -304,7 +304,7 @@ main(
      *
      * Be ware that the code below creates a different file depending on the
      * current locale!  For example, if the current locale is
-     * english_us.65001, then the file name will "åäö.txt" (7 characters).
+     * english_us.65001, then the file name will be "åäö.txt" (7 characters).
      * However, if the current locale is english_us.1252, then the file name
      * will be "ÃċÃĊÃ¶.txt" (10 characters).
      */
