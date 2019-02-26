@@ -1041,87 +1041,45 @@ dirent_mbstowcs_s(
     size_t count)
 {
     int error;
-    int n;
-    size_t len;
-    UINT cp;
-    DWORD flags;
 
-    /* Determine code page for multi-byte string */
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-    /* Desktop */
-    if (AreFileApisANSI ()) {
-        cp = GetACP ();
-    } else {
-        cp = GetOEMCP ();
-    }
+#if defined(_MSC_VER)  &&  _MSC_VER >= 1400
+
+    /* Microsoft Visual Studio 2005 or later */
+    error = mbstowcs_s (pReturnValue, wcstr, sizeInWords, mbstr, count);
+
 #else
-    /* Windows Phone */
-    cp = GetACP ();
-#endif
 
-    /*
-     * Determine flags based on the character set.  For more information,
-     * please see https://docs.microsoft.com/fi-fi/windows/desktop/api/stringapiset/nf-stringapiset-multibytetowidechar
-     */
-    switch (cp) {
-    case 42:
-    case 50220:
-    case 50221:
-    case 50222:
-    case 50225:
-    case 50227:
-    case 50229:
-    case 57002:
-    case 57003:
-    case 57004:
-    case 57005:
-    case 57006:
-    case 57007:
-    case 57008:
-    case 57009:
-    case 57010:
-    case 57011:
-    case 65000:
-        /* MultiByteToWideChar does not support MB_ERR_INVALID_CHARS */
-        flags = 0;
-        break;
+    /* Older Visual Studio or non-Microsoft compiler */
+    size_t n;
 
-    default:
-        /*
-         * Ask MultiByteToWideChar to return an error if a multi-byte
-         * character cannot be converted to a wide-character.
-         */
-        flags = MB_ERR_INVALID_CHARS;
-    }
+    /* Convert to wide-character string (or count characters) */
+    n = mbstowcs (wcstr, mbstr, sizeInWords);
+    if (!wcstr  ||  n < count) {
 
-    /* Compute the length of input string without zero-terminator */
-    len = 0;
-    while (mbstr[len] != '\0'  &&  len < count) {
-        len++;
-    }
+        /* Zero-terminate output buffer */
+        if (wcstr  &&  sizeInWords) {
+            if (n >= sizeInWords) {
+                n = sizeInWords - 1;
+            }
+            wcstr[n] = 0;
+        }
 
-    /* Convert to wide-character string */
-    n = MultiByteToWideChar(
-        /* Source code page */ cp,
-        /* Flags */ flags,
-        /* Pointer to string to convert */ mbstr,
-        /* Size of multi-byte string */ (int) len,
-        /* Pointer to output buffer */ wcstr,
-        /* Size of output buffer */ (int)sizeInWords - 1
-    );
+        /* Length of resulting multi-byte string WITH zero terminator */
+        if (pReturnValue) {
+            *pReturnValue = n + 1;
+        }
 
-    /* Ensure that output buffer is zero-terminated */
-    wcstr[n] = '\0';
-
-    /* Return length of wide-character string with zero-terminator */
-    *pReturnValue = (size_t) (n + 1);
-
-    /* Return zero if conversion succeeded */
-    if (n > 0) {
+        /* Success */
         error = 0;
+
     } else {
+
+        /* Could not convert string */
         error = 1;
+
     }
+
+#endif
     return error;
 }
 
@@ -1134,81 +1092,46 @@ dirent_wcstombs_s(
     const wchar_t *wcstr,
     size_t count)
 {
-    int n;
     int error;
-    UINT cp;
-    size_t len;
-    BOOL flag = 0;
-    LPBOOL pflag;
 
-    /* Compute the length of input string without zero-terminator */
-    len = 0;
-    while (wcstr[len] != '\0'  &&  len < count) {
-        len++;
-    }
+#if defined(_MSC_VER)  &&  _MSC_VER >= 1400
 
-    /* Determine code page for multi-byte string */
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-    /* Desktop */
-    if (AreFileApisANSI ()) {
-        cp = GetACP ();
-    } else {
-        cp = GetOEMCP ();
-    }
+    /* Microsoft Visual Studio 2005 or later */
+    error = wcstombs_s (pReturnValue, mbstr, sizeInBytes, wcstr, count);
+
 #else
-    /* Windows Phone */
-    cp = GetACP ();
-#endif
 
-    /*
-     * Determine if we can ask WideCharToMultiByte to return information on
-     * broken characters.  For more information, please see
-     * https://docs.microsoft.com/en-us/windows/desktop/api/stringapiset/nf-stringapiset-widechartomultibyte
-     */
-    switch (cp) {
-    case CP_UTF7:
-    case CP_UTF8:
-        /*
-         * WideCharToMultiByte fails if we request information on default
-         * characters.  This is just a nuisance but doesn't affect the
-         * conversion: if Windows is configured to use UTF-8, then the default
-         * character should not be needed anyway.
-         */
-        pflag = NULL;
-        break;
+    /* Older Visual Studio or non-Microsoft compiler */
+    size_t n;
 
-    default:
-        /*
-         * Request that WideCharToMultiByte sets the flag if it uses the
-         * default character.
-         */
-        pflag = &flag;
-    }
+    /* Convert to multi-byte string (or count the number of bytes needed) */
+    n = wcstombs (mbstr, wcstr, sizeInBytes);
+    if (!mbstr  ||  n < count) {
 
-    /* Convert wide-character string to multi-byte character string */
-    n = WideCharToMultiByte(
-        /* Target code page */ cp,
-        /* Flags */ 0,
-        /* Pointer to unicode string */ wcstr,
-        /* Length of unicode string */ (int) len,
-        /* Pointer to output buffer */ mbstr,
-        /* Size of output buffer */ (int)sizeInBytes - 1,
-        /* Default character */ NULL,
-        /* Whether default character was used or not */ pflag
-    );
+        /* Zero-terminate output buffer */
+        if (mbstr  &&  sizeInBytes) {
+            if (n >= sizeInBytes) {
+                n = sizeInBytes - 1;
+            }
+            mbstr[n] = '\0';
+        }
 
-    /* Ensure that output buffer is zero-terminated */
-    mbstr[n] = '\0';
+        /* Length of resulting multi-bytes string WITH zero-terminator */
+        if (pReturnValue) {
+            *pReturnValue = n + 1;
+        }
 
-    /* Return length of multi-byte string with zero-terminator */
-    *pReturnValue = (size_t) (n + 1);
-
-    /* Return zero if conversion succeeded without using default characters */
-    if (n > 0  &&  flag == 0) {
+        /* Success */
         error = 0;
+
     } else {
+
+        /* Cannot convert string */
         error = 1;
+
     }
+
+#endif
     return error;
 }
 

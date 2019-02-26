@@ -31,6 +31,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <errno.h>
+#include <locale.h>
 
 static void list_directory (const char *dirname);
 
@@ -40,6 +41,9 @@ main(
     int argc, char *argv[])
 {
     int i;
+
+    /* Select default locale */
+    setlocale (LC_ALL, "");
 
     /* For each directory in command line */
     i = 1;
@@ -93,7 +97,7 @@ list_directory(
 
     } else {
         /* Could not open directory */
-        printf ("Cannot open directory %s (%s)\n", dirname, strerror (errno));
+        fprintf (stderr, "Cannot open %s (%s)\n", dirname, strerror (errno));
         exit (EXIT_FAILURE);
     }
 }

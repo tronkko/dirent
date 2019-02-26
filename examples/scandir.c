@@ -21,10 +21,13 @@
  * under the MIT license.  For all details and documentation, see
  * https://github.com/tronkko/dirent
  */
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <errno.h>
+#include <locale.h>
 
 static void list_directory (const char *dirname);
 
@@ -34,6 +37,9 @@ main(
     int argc, char *argv[])
 {
     int i;
+
+    /* Select default locale */
+    setlocale (LC_ALL, "");
 
     /* For each directory in command line */
     i = 1;
@@ -98,6 +104,7 @@ list_directory(
         free (files);
 
     } else {
-        printf ("Cannot open directory %s\n", dirname);
+        fprintf (stderr, "Cannot open %s (%s)\n", dirname, strerror (errno));
+        exit (EXIT_FAILURE);
     }
 }

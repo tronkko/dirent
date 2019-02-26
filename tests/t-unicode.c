@@ -38,7 +38,6 @@ main(
     struct dirent *entry;
     char buffer[100];
     FILE *fp;
-    UINT cp;
     int counter = 0;
 
     (void) argc;
@@ -52,15 +51,8 @@ main(
     if (argc > 1) {
         printf ("Locale %s\n", argv[1]); 
         setlocale (LC_ALL, argv[1]);
-    }
-
-    /* Get current code page */
-    if (AreFileApisANSI ()) {
-        cp = GetACP ();
-        printf ("File APIs are using ANSI code page %d\n", cp);
     } else {
-        cp = GetOEMCP ();
-        printf ("File APIs are using OEM code page %d\n", cp);
+        setlocale (LC_ALL, "");
     }
 
 
@@ -307,7 +299,15 @@ main(
     assert (j < MAX_PATH);
     path[j] = '\0';
 
-    /* Create file */
+    /*
+     * Create file.
+     *
+     * Be ware that the code below creates a different file depending on the
+     * current locale!  For example, if the current locale is
+     * english_us.65001, then the file name will "åäö.txt" (7 characters).
+     * However, if the current locale is english_us.1252, then the file name
+     * will be "ÃċÃĊÃ¶.txt" (10 characters).
+     */
     printf ("Creating %s\n", path);
     fp = fopen (path, "w");
     if (!fp) {
@@ -354,7 +354,7 @@ main(
         path[j] = '\0';
 
         /* Print file name for debugging */
-        printf ("Opening ");
+        printf ("Opening \"%s\" hex ", path + k + 1);
         x = 0;
         while (entry->d_name[x] != '\0') {
             printf ("0x%02x ", (unsigned) (entry->d_name[x++] & 0xff));
