@@ -16,6 +16,7 @@
 #include <string.h>
 #include <wchar.h>
 #include <time.h>
+#include <locale.h>
 
 #undef NDEBUG
 #include <assert.h>
@@ -45,11 +46,22 @@ main(
 
 
     /* Initialize random number generator */
-    srand ((unsigned) time (NULL));
+    srand (((int) time (NULL)) * 257 + ((int) GetCurrentProcessId ()));
+
+    /* Set current locale */
+    if (argc > 1) {
+        printf ("Locale %s\n", argv[1]); 
+        setlocale (LC_ALL, argv[1]);
+    }
 
     /* Get current code page */
-    cp = GetACP ();
-    printf ("Your ANSI Code Page is %d\n", cp);
+    if (AreFileApisANSI ()) {
+        cp = GetACP ();
+        printf ("File APIs are using ANSI code page %d\n", cp);
+    } else {
+        cp = GetOEMCP ();
+        printf ("File APIs are using OEM code page %d\n", cp);
+    }
 
 
     /****** CREATE FILE WITH UNICODE FILE NAME ******/
@@ -83,7 +95,11 @@ main(
 
     /* Create directory using unicode */
     ok = CreateDirectoryW (wpath, NULL);
-    assert (ok);
+    if (!ok) {
+        DWORD e = GetLastError ();
+        wprintf (L"Cannot create directory %ls (code %u)\n", wpath, e);
+        abort ();
+    }
 
     /* Overwrite zero terminator with path separator */
     assert (i < MAX_PATH  &&  j < MAX_PATH);
@@ -244,7 +260,6 @@ main(
         path[j] = '\0';
 
         /* Open file for read */
-        printf ("fopen %s\n", path);
         fp = fopen (path, "r");
         if (!fp) {
             fprintf (stderr, "Cannot open file %s\n", path);
@@ -274,11 +289,113 @@ main(
     closedir (dir);
 
 
-#else /* Linux */
+    /****** CREATE FILE WITH UTF-8 ******/
 
+    /* Append UTF-8 file name (åäö.txt) to path */
+    j = k;
+    path[j++] = '\\';
+    path[j++] = 0xc3;
+    path[j++] = 0xa5;
+    path[j++] = 0xc3;
+    path[j++] = 0xa4;
+    path[j++] = 0xc3;
+    path[j++] = 0xb6;
+    path[j++] = 0x2e;
+    path[j++] = 0x74;
+    path[j++] = 0x78;
+    path[j++] = 0x74;
+    assert (j < MAX_PATH);
+    path[j] = '\0';
+
+    /* Create file */
+    printf ("Creating %s\n", path);
+    fp = fopen (path, "w");
+    if (!fp) {
+        fprintf (stderr, "Cannot open file %s\n", path);
+        abort ();
+    }
+    fputs ("hep\n", fp);
+    fclose (fp);
+
+    /* Open directory again */
+    path[k] = '\0';
+    dir = opendir (path);
+    if (dir == NULL) {
+        fprintf (stderr, "Cannot open directory %s\n", path);
+        abort ();
+    }
+
+    /* Read through entries */
+    counter = 0;
+    while ((entry = readdir (dir)) != NULL) {
+
+        /* Skip pseudo directories */
+        if (strcmp (entry->d_name, ".") == 0) {
+            continue;
+        }
+        if (strcmp (entry->d_name, "..") == 0) {
+            continue;
+        }
+
+        /* Found a file */
+        counter++;
+        assert (entry->d_type == DT_REG);
+
+        /* Append file name to path */
+        j = k;
+        assert (j < MAX_PATH);
+        path[j++] = '\\';
+        x = 0;
+        while (entry->d_name[x] != '\0') {
+            assert (j < MAX_PATH);
+            path[j++] = entry->d_name[x++];
+        }
+        assert (j < MAX_PATH);
+        path[j] = '\0';
+
+        /* Print file name for debugging */
+        printf ("Opening ");
+        x = 0;
+        while (entry->d_name[x] != '\0') {
+            printf ("0x%02x ", (unsigned) (entry->d_name[x++] & 0xff));
+        }
+        printf ("\n");
+
+        /* Open file for read */
+        fp = fopen (path, "r");
+        if (!fp) {
+            fprintf (stderr, "Cannot open file %s\n", path);
+            abort ();
+        }
+
+        /* Read data from file */
+        if (fgets (buffer, sizeof (buffer), fp) == NULL) {
+            fprintf (stderr, "Cannot read file %s\n", path);
+            abort ();
+        }
+
+        /* Make sure that we got the file contents right */
+        assert (buffer[0] == 'h');
+        assert (buffer[1] == 'e');
+        assert (buffer[2] == 'p');
+        assert (buffer[3] == '\n');
+        assert (buffer[4] == '\0');
+
+        /* Close file */
+        fclose (fp);
+
+    }
+    assert (counter == 2);
+
+    /* Close directory */
+    closedir (dir);
+
+#else
+
+    /* Linux */
     (void) argc;
     (void) argv;
 
-#endif /* Linux */
+#endif
     return EXIT_SUCCESS;
 }
