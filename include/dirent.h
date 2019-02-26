@@ -380,12 +380,12 @@ _wopendir(
      * Note that on WinRT there's no way to convert relative paths
      * into absolute paths, so just assume it is an absolute path.
      */
-#if defined(WINAPI_FAMILY) && defined(WINAPI_FAMILY_PHONE_APP) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+    /* Desktop */
+    n = GetFullPathNameW (dirname, 0, NULL, NULL);
+#else
     /* WinRT */
     n = wcslen (dirname);
-#else
-    /* Regular Windows */
-    n = GetFullPathNameW (dirname, 0, NULL, NULL);
 #endif
 
     /* Allocate room for absolute directory name and search pattern */
@@ -402,15 +402,15 @@ _wopendir(
      * Note that on WinRT there's no way to convert relative paths
      * into absolute paths, so just assume it is an absolute path.
      */
-#if defined(WINAPI_FAMILY) && defined(WINAPI_FAMILY_PHONE_APP) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
-    /* WinRT */
-    wcsncpy_s (dirp->patt, n+1, dirname, n);
-#else
-    /* Regular Windows */
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+    /* Desktop */
     n = GetFullPathNameW (dirname, n, dirp->patt, NULL);
     if (n <= 0) {
         goto exit_closedir;
     }
+#else
+    /* WinRT */
+    wcsncpy_s (dirp->patt, n+1, dirname, n);
 #endif
 
     /* Append search pattern \* to the directory name */
@@ -1048,16 +1048,16 @@ dirent_mbstowcs_s(
 
     /* Determine code page for multi-byte string */
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+    /* Desktop */
     if (AreFileApisANSI ()) {
-        /* Default ANSI code page */
         cp = GetACP ();
     } else {
-        /* Default OEM code page */
         cp = GetOEMCP ();
     }
 #else
-    cp = CP_ACP;
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+    /* Windows Phone */
+    cp = GetACP ();
+#endif
 
     /*
      * Determine flags based on the character set.  For more information,
@@ -1141,25 +1141,24 @@ dirent_wcstombs_s(
     BOOL flag = 0;
     LPBOOL pflag;
 
-    /* Determine code page for multi-byte string */
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-    if (AreFileApisANSI ()) {
-        /* Default ANSI code page */
-        cp = GetACP ();
-    } else {
-        /* Default OEM code page */
-        cp = GetOEMCP ();
-    }
-#else
-    cp = CP_ACP;
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-
-
     /* Compute the length of input string without zero-terminator */
     len = 0;
     while (wcstr[len] != '\0'  &&  len < count) {
         len++;
     }
+
+    /* Determine code page for multi-byte string */
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+    /* Desktop */
+    if (AreFileApisANSI ()) {
+        cp = GetACP ();
+    } else {
+        cp = GetOEMCP ();
+    }
+#else
+    /* Windows Phone */
+    cp = GetACP ();
+#endif
 
     /*
      * Determine if we can ask WideCharToMultiByte to return information on
