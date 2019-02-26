@@ -35,6 +35,7 @@ add_executable (ls examples/ls.c)
 add_executable (locate examples/locate.c)
 add_executable (updatedb examples/updatedb.c)
 add_executable (scandir examples/scandir.c)
+add_executable (cat examples/cat.c)
 
 # Build test programs
 include (CTest)
