@@ -3,6 +3,7 @@ project (dirent LANGUAGES C CXX)
 
 # User options
 option(DIRENT_BUILD_TESTS "Build bundled tests" ON)
+message(STATUS "Build test and example programs: ${DIRENT_BUILD_TESTS}")
 
 # Initialize C and C++ compilers
 enable_language (C CXX)
