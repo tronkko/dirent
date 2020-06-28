@@ -106,7 +106,7 @@ db_locate(
     db_open ();
 
     /* Read one directory and file name at a time from database file */
-    while (db_read (buffer, PATH_MAX)) {
+    while (db_read (buffer, PATH_MAX + 1)) {
         /* See if file name in buffer matches the search pattern */
         if (db_match (buffer, pattern)) {
             /* Match found => output file name and path */
@@ -236,7 +236,8 @@ db_read(
             if (i < max - 1) {
                 buffer[i++] = c;
             } else {
-                wprintf (L"Buffer too small");
+                buffer[max - 1] = '\0';
+                wprintf (L"Buffer too small: %s", buffer);
                 exit (EXIT_FAILURE);
             }
         }
