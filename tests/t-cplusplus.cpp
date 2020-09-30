@@ -6,6 +6,7 @@
  * under the MIT license.  For all details and documentation, see
  * https://github.com/tronkko/dirent
  */
+//These are the libraries and header files below which used in the below code
 #include <iostream>
 #include <string.h>
 #include <dirent.h>
