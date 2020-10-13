@@ -9,8 +9,14 @@
 /find
 /locate
 /ls
+/scandir
+/cat
 /t-compile
 /t-dirent
+/t-scandir
+/t-cplusplus
+/t-unicode
+/t-strverscmp
 /updatedb
 /*.filters
 /*.vcxproj

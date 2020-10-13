@@ -7,8 +7,11 @@
  * https://github.com/tronkko/dirent
  */
 
-/* Silence warning about fopen being insecure */
+/* Silence warning about fopen being insecure (MS Visual Studio) */
 #define _CRT_SECURE_NO_WARNINGS
+
+/* Include prototype for versionsort (Linux) */
+#define _GNU_SOURCE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,7 +79,7 @@ main(
         assert (strcmp (files[7]->d_name, "dirent.dat") == 0);
         assert (strcmp (files[8]->d_name, "empty.dat") == 0);
         assert (strcmp (files[9]->d_name, "sane-1.12.0.dat") == 0);
-        assert (strcmp (files[10]->d_name, "sane-1.2.3.dat") == 0);
+        assert (strcmp (files[10]->d_name, "sane-1.2.30.dat") == 0);
         assert (strcmp (files[11]->d_name, "sane-1.2.4.dat") == 0);
         assert (strcmp (files[12]->d_name, "zebra.dat") == 0);
 
@@ -96,7 +99,7 @@ main(
         /* Make sure that we got all the FILE names in the REVERSE order */
         assert (strcmp (files[0]->d_name, "zebra.dat") == 0);
         assert (strcmp (files[1]->d_name, "sane-1.2.4.dat") == 0);
-        assert (strcmp (files[2]->d_name, "sane-1.2.3.dat") == 0);
+        assert (strcmp (files[2]->d_name, "sane-1.2.30.dat") == 0);
         assert (strcmp (files[3]->d_name, "sane-1.12.0.dat") == 0);
         assert (strcmp (files[4]->d_name, "empty.dat") == 0);
         assert (strcmp (files[5]->d_name, "dirent.dat") == 0);
@@ -129,6 +132,35 @@ main(
         assert (n == -1);
         assert (files == NULL);
         assert (errno == ENOTDIR);
+    }
+
+    /* Sort files using versionsort() */
+    {
+        files = NULL;
+        n = scandir ("tests/3", &files, no_directories, versionsort);
+        assert (n == 11);
+
+        /*
+         * Make sure that we got all the file names in the proper order:
+         * 1.2.4 < 1.2.30 < 1.12.0
+         */
+        assert (strcmp (files[0]->d_name, "3zero.dat") == 0);
+        assert (strcmp (files[1]->d_name, "666.dat") == 0);
+        assert (strcmp (files[2]->d_name, "Qwerty-my-aunt.dat") == 0);
+        assert (strcmp (files[3]->d_name, "README.txt") == 0);
+        assert (strcmp (files[4]->d_name, "aaa.dat") == 0);
+        assert (strcmp (files[5]->d_name, "dirent.dat") == 0);
+        assert (strcmp (files[6]->d_name, "empty.dat") == 0);
+        assert (strcmp (files[7]->d_name, "sane-1.2.4.dat") == 0);
+        assert (strcmp (files[8]->d_name, "sane-1.2.30.dat") == 0);
+        assert (strcmp (files[9]->d_name, "sane-1.12.0.dat") == 0);
+        assert (strcmp (files[10]->d_name, "zebra.dat") == 0);
+
+        /* Release file names */
+        for (i = 0; i < n; i++) {
+            free (files[i]);
+        }
+        free (files);
     }
 
     /* Scan large directory */

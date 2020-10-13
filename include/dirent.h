@@ -313,6 +313,7 @@ static int alphasort (const struct dirent **a, const struct dirent **b);
 
 static int versionsort (const struct dirent **a, const struct dirent **b);
 
+static int strverscmp (const char *a, const char *b);
 
 /* For compatibility with Symbian */
 #define wdirent _wdirent
@@ -1033,8 +1034,71 @@ static int
 versionsort(
     const struct dirent **a, const struct dirent **b)
 {
-    /* FIXME: implement strverscmp and use that */
-    return alphasort (a, b);
+    return strverscmp ((*a)->d_name, (*b)->d_name);
+}
+
+/* Compare strings */
+static int
+strverscmp(
+    const char *a, const char *b)
+{
+    unsigned int i = 0;
+    unsigned int j;
+
+    /* Find first difference */
+    while (a[i] != '\0' && a[i] == b[i]) {
+        ++i;
+    }
+    if (a[i] == b[i]) {
+        /* No difference found */
+        return 0;
+    }
+
+    /* Count backwards and find the leftmost digit of the differing number */
+    j = i;
+    while (j > 0 && '0' <= a[j-1] && a[j-1] <= '9') {
+        --j;
+    }
+
+    /* Determine mode of comparison */
+    if (a[j] == '0' || b[j] == '0') {
+        /* Zero mode */
+        unsigned int k = j;
+
+        /* Find the next non-zero digit */
+        while (a[k] == '0' && a[k] == b[k]) {
+            k++;
+        }
+
+        /* String with greater number of digits is smaller, e.g 002 < 01 */
+        if (isdigit(a[k])) {
+            if (!isdigit(b[k])) {
+                return -1;
+            }
+        } else if (isdigit(b[k])) {
+            return 1;
+        }
+    } else if (isdigit(a[j]) && isdigit(b[j])) {
+        /* Numeric comparison */
+        unsigned int k = j;
+
+        /* Find the next non-digit */
+        while (isdigit(a[k]) && isdigit(b[k])) {
+            k++;
+        }
+
+        /* Number with greater number of digits is bigger */
+        if (isdigit(a[k])) {
+            if (!isdigit(b[k])) {
+                return 1;
+            }
+        } else if (isdigit(b[k])) {
+            return -1;
+        }
+    }
+
+    /* Alphabetical comparison */
+    return (int) ((unsigned char) a[i]) - ((unsigned char) b[i]);
 }
 
 /* Convert multi-byte string to wide character string */
