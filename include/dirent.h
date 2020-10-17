@@ -1043,31 +1043,31 @@ static int
 strverscmp(
     const char *a, const char *b)
 {
-    unsigned int i = 0;
-    unsigned int j;
+    size_t i = 0;
+    size_t j;
 
     /* Find first difference */
-    while (a[i] != '\0' && a[i] == b[i]) {
+    while (a[i] == b[i]) {
+        if (a[i] == '\0') {
+            /* No difference */
+            return 0;
+        }
         ++i;
-    }
-    if (a[i] == b[i]) {
-        /* No difference found */
-        return 0;
     }
 
     /* Count backwards and find the leftmost digit of the differing number */
     j = i;
-    while (j > 0 && '0' <= a[j-1] && a[j-1] <= '9') {
+    while (j > 0  &&  isdigit(a[j-1])) {
         --j;
     }
 
     /* Determine mode of comparison */
-    if (a[j] == '0' || b[j] == '0') {
+    if (a[j] == '0'  ||  b[j] == '0') {
         /* Zero mode */
-        unsigned int k = j;
+        size_t k = j;
 
         /* Find the next non-zero digit */
-        while (a[k] == '0' && a[k] == b[k]) {
+        while (a[k] == '0'  &&  a[k] == b[k]) {
             k++;
         }
 
@@ -1079,22 +1079,24 @@ strverscmp(
         } else if (isdigit(b[k])) {
             return 1;
         }
-    } else if (isdigit(a[j]) && isdigit(b[j])) {
+    } else if (isdigit(a[j])  &&  isdigit(b[j])) {
         /* Numeric comparison */
-        unsigned int k = j;
+        size_t k1 = j;
+        size_t k2 = j;
 
-        /* Find the next non-digit */
-        while (isdigit(a[k]) && isdigit(b[k])) {
-            k++;
+        /* Compute number of digits in each string */
+        while (isdigit(a[k1])) {
+            k1++;
+        }
+        while (isdigit(b[k2])) {
+            k2++;
         }
 
-        /* Number with greater number of digits is bigger */
-        if (isdigit(a[k])) {
-            if (!isdigit(b[k])) {
-                return 1;
-            }
-        } else if (isdigit(b[k])) {
+        /* Number with greater number of digits is bigger, e.g 999 < 1000 */
+        if (k1 < k2) {
             return -1;
+        } else if (k1 > k2) {
+            return 1;
         }
     }
 

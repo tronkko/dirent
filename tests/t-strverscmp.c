@@ -54,6 +54,12 @@ main(
     assert (strverscmp ("1000", "999") > 0);
     assert (strverscmp ("t12-1000", "t12-9999") < 0);
     assert (strverscmp ("t12-9999", "t12-1000") > 0);
+    assert (strverscmp ("1000", "10001") < 0);
+    assert (strverscmp ("10001", "1000") > 0);
+    assert (strverscmp ("1000!", "10001") < 0);
+    assert (strverscmp ("10001", "1000!") > 0);
+    assert (strverscmp ("1000Z", "10001") < 0);
+    assert (strverscmp ("10001", "1000Z") > 0);
 
     /* If numbers starts with zero, then longer number is smaller */
     assert (strverscmp ("00", "0") < 0);
@@ -62,8 +68,18 @@ main(
     assert (strverscmp ("a00", "a000") > 0);
     assert (strverscmp ("0000", "000") < 0);
     assert (strverscmp ("000", "0000") > 0);
+    assert (strverscmp ("0000", "000!") < 0);
+    assert (strverscmp ("000!", "0000") > 0);
+    assert (strverscmp ("0000", "000Z") < 0);
+    assert (strverscmp ("000Z", "0000") > 0);
+    assert (strverscmp ("0000", "000Z") < 0);
+    assert (strverscmp ("000Z", "0000") > 0);
     assert (strverscmp ("1.01", "1.0") < 0);
     assert (strverscmp ("1.0", "1.01") > 0);
+    assert (strverscmp ("1.01", "1.0!") < 0);
+    assert (strverscmp ("1.0!", "1.01") > 0);
+    assert (strverscmp ("1.01", "1.0~") < 0);
+    assert (strverscmp ("1.0~", "1.01") > 0);
 
     /* Number having more leading zeros is considered smaller */
     assert (strverscmp ("item-0001", "item-001") < 0);
@@ -156,28 +172,32 @@ main(
 #define REPEAT 1000000
         char a[LENGTH+1];
         char b[LENGTH+1];
-        unsigned int i;
-        unsigned int j;
+        size_t i;
+        size_t j;
         char letters[] = "01234567890123456789abdefghjkpqrtwxyz-/.";
-        unsigned int n = strlen(letters);
+        size_t n = strlen(letters);
 
         /* Repeat test */
         for (i = 0; i < REPEAT; i++) {
-            /*
-             * Generate random string of LENGTH characters.  Be ware that
-             * the string has to be created inside the loop or otherwise the
-             * compiler can reduce the loop into single call!
-             */
+            int diff1;
+            int diff2;
+
+            /* Generate two random strings of LENGTH characters */
             for (j = 0; j < LENGTH; j++) {
-                char c = letters[rand() % n];
-                a[j] = c;
-                b[j] = c;
+                a[j] = letters[rand() % n];
+                b[j] = letters[rand() % n];
             }
             a[j] = '\0';
             b[j] = '\0';
 
-            /* Both strings must be equal */
-            assert (strverscmp (a, b) == 0);
+            /* Compare strings in both directions */
+            diff1 = strverscmp (a, b);
+            diff2 = strverscmp (b, a);
+
+            /* Comparison must give identical result in both ways */
+            assert ((diff1 < 0 && diff2 > 0)
+                || (diff1 == 0 && diff2 == 0)
+                || (diff1 > 0 && diff2 < 0));
         }
     }
 
