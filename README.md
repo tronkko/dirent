@@ -1,4 +1,5 @@
 # Dirent
+
 Dirent is a C/C++ programming interface that allows programmers to retrieve
 information about files and directories under Linux/UNIX.  This project
 provides Linux compatible Dirent interface for Microsoft Windows.
@@ -83,6 +84,12 @@ locate cmd.exe
 
 You can omit generation of test and example programs by appending option
 `-DDIRENT_BUILD_TESTS=OFF` to the CMake command line.
+
+
+# Contributing
+
+We love to receive contributions from you.  See the
+[CONTRIBUTING](CONTRIBUTING.md) file for details.
 
 
 # Copying
