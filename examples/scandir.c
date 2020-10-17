@@ -29,30 +29,26 @@
 #include <errno.h>
 #include <locale.h>
 
-static void list_directory (const char *dirname);
+static void list_directory(const char *dirname);
 
 
-int
-main(
-    int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-    int i;
+	/* Select default locale */
+	setlocale(LC_ALL, "");
 
-    /* Select default locale */
-    setlocale (LC_ALL, "");
+	/* For each directory in command line */
+	int i = 1;
+	while (i < argc) {
+		list_directory(argv[i]);
+		i++;
+	}
 
-    /* For each directory in command line */
-    i = 1;
-    while (i < argc) {
-        list_directory (argv[i]);
-        i++;
-    }
+	/* List current working directory if no arguments on command line */
+	if (argc == 1)
+		list_directory(".");
 
-    /* List current working directory if no arguments on command line */
-    if (argc == 1) {
-        list_directory (".");
-    }
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -62,49 +58,43 @@ static void
 list_directory(
     const char *dirname)
 {
-    struct dirent **files;
-    int i;
-    int n;
+	/* Scan files in directory */
+	struct dirent **files;
+	int n = scandir(dirname, &files, NULL, alphasort);
+	if (n < 0) {
+		fprintf(stderr,
+			"Cannot open %s (%s)\n", dirname, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 
-    /* Scan files in directory */
-    n = scandir (dirname, &files, NULL, alphasort);
-    if (n >= 0) {
+	/* Loop through file names */
+	for (int i = 0; i < n; i++) {
+		/* Get pointer to file entry */
+		struct dirent *ent = files[i];
 
-        /* Loop through file names */
-        for (i = 0; i < n; i++) {
-            struct dirent *ent;
+		/* Output file name */
+		switch (ent->d_type) {
+		case DT_REG:
+			printf("%s\n", ent->d_name);
+			break;
 
-            /* Get pointer to file entry */
-            ent = files[i];
+		case DT_DIR:
+			printf("%s/\n", ent->d_name);
+			break;
 
-            /* Output file name */
-            switch (ent->d_type) {
-            case DT_REG:
-                printf ("%s\n", ent->d_name);
-                break;
+		case DT_LNK:
+			printf("%s@\n", ent->d_name);
+			break;
 
-            case DT_DIR:
-                printf ("%s/\n", ent->d_name);
-                break;
+		default:
+			printf("%s*\n", ent->d_name);
+		}
 
-            case DT_LNK:
-                printf ("%s@\n", ent->d_name);
-                break;
+	}
 
-            default:
-                printf ("%s*\n", ent->d_name);
-            }
-
-        }
-
-        /* Release file names */
-        for (i = 0; i < n; i++) {
-            free (files[i]);
-        }
-        free (files);
-
-    } else {
-        fprintf (stderr, "Cannot open %s (%s)\n", dirname, strerror (errno));
-        exit (EXIT_FAILURE);
-    }
+	/* Release file names */
+	for (int i = 0; i < n; i++) {
+		free(files[i]);
+	}
+	free(files);
 }

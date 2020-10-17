@@ -33,115 +33,98 @@
 #include <errno.h>
 #include <locale.h>
 
-static int find_directory (const char *dirname);
+static int find_directory(const char *dirname);
 
 
-int
-main(
-    int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-    int i;
-    int ok;
-
     /* Select default locale */
-    setlocale (LC_ALL, "");
+    setlocale(LC_ALL, "");
 
     /* For each directory in command line */
-    i = 1;
+    int i = 1;
     while (i < argc) {
-        ok = find_directory (argv[i]);
-        if (!ok) {
-            exit (EXIT_FAILURE);
-        }
+        if (!find_directory(argv[i]))
+            exit(EXIT_FAILURE);
         i++;
     }
 
     /* List current working directory if no arguments on command line */
-    if (argc == 1) {
-        find_directory (".");
-    }
+    if (argc == 1)
+        find_directory(".");
+
     return EXIT_SUCCESS;
 }
 
 /* Find files and subdirectories recursively */
-static int
-find_directory(
-    const char *dirname)
+static int find_directory(const char *dirname)
 {
-    DIR *dir;
-    char buffer[PATH_MAX + 2];
-    char *p = buffer;
-    const char *src;
-    char *end = &buffer[PATH_MAX];
-    int ok;
+	char buffer[PATH_MAX + 2];
+	char *p = buffer;
+	char *end = &buffer[PATH_MAX];
 
-    /* Copy directory name to buffer */
-    src = dirname;
-    while (p < end  &&  *src != '\0') {
-        *p++ = *src++;
-    }
-    *p = '\0';
+	/* Copy directory name to buffer */
+	const char *src = dirname;
+	while (p < end && *src != '\0') {
+		*p++ = *src++;
+	}
+	*p = '\0';
 
-    /* Open directory stream */
-    dir = opendir (dirname);
-    if (dir != NULL) {
-        struct dirent *ent;
+	/* Open directory stream */
+	DIR *dir = opendir(dirname);
+	if (!dir) {
+		/* Could not open directory */
+		fprintf(stderr,
+			"Cannot open %s (%s)\n", dirname, strerror(errno));
+		return /*failure*/ 0;
+	}
 
-        /* Print all files and directories within the directory */
-        while ((ent = readdir (dir)) != NULL) {
-            char *q = p;
-            char c;
+	/* Print all files and directories within the directory */
+	struct dirent *ent;
+	while ((ent = readdir(dir)) != NULL) {
+		char *q = p;
+		char c;
 
-            /* Get final character of directory name */
-            if (buffer < q) {
-                c = q[-1];
-            } else {
-                c = ':';
-            }
+		/* Get final character of directory name */
+		if (buffer < q)
+			c = q[-1];
+		else
+			c = ':';
 
-            /* Append directory separator if not already there */
-            if (c != ':'  &&  c != '/'  &&  c != '\\') {
-                *q++ = '/';
-            }
+		/* Append directory separator if not already there */
+		if (c != ':' && c != '/' && c != '\\')
+			*q++ = '/';
 
-            /* Append file name */
-            src = ent->d_name;
-            while (q < end  &&  *src != '\0') {
-                *q++ = *src++;
-            }
-            *q = '\0';
+		/* Append file name */
+		src = ent->d_name;
+		while (q < end && *src != '\0') {
+			*q++ = *src++;
+		}
+		*q = '\0';
 
-            /* Decide what to do with the directory entry */
-            switch (ent->d_type) {
-            case DT_LNK:
-            case DT_REG:
-                /* Output file name with directory */
-                printf ("%s\n", buffer);
-                break;
+		/* Decide what to do with the directory entry */
+		switch (ent->d_type) {
+		case DT_LNK:
+		case DT_REG:
+			/* Output file name with directory */
+			printf("%s\n", buffer);
+			break;
 
-            case DT_DIR:
-                /* Scan sub-directory recursively */
-                if (strcmp (ent->d_name, ".") != 0
-                        &&  strcmp (ent->d_name, "..") != 0) {
-                    find_directory (buffer);
-                }
-                break;
+		case DT_DIR:
+			/* Scan sub-directory recursively */
+			if (strcmp(ent->d_name, ".") != 0
+				&&  strcmp(ent->d_name, "..") != 0) {
+				find_directory(buffer);
+			}
+			break;
 
-            default:
-                /* Ignore device entries */
-                /*NOP*/;
-            }
+		default:
+			/* Ignore device entries */
+			/*NOP*/;
+		}
 
-        }
+	}
 
-        closedir (dir);
-        ok = 1;
-
-    } else {
-        /* Could not open directory */
-        fprintf (stderr, "Cannot open %s (%s)\n", dirname, strerror (errno));
-        ok = 0;
-    }
-
-    return ok;
+	closedir(dir);
+	return /*success*/ 1;
 }

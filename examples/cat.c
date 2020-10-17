@@ -21,65 +21,53 @@
 #include <errno.h>
 #include <locale.h>
 
-static void output_file (const char *fn);
+static void output_file(const char *fn);
 
 
-int
-main(
-    int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-    int i;
+	/* Select default locale */
+	setlocale(LC_ALL, "");
 
-    /* Select default locale */
-    setlocale (LC_ALL, "");
+	/* Require at least one file */
+	if (argc == 1) {
+		fprintf(stderr, "Usage: cat filename\n");
+		return EXIT_FAILURE;
+	}
 
-    /* Require at least one file */
-    if (argc == 1) {
-        fprintf (stderr, "Usage: cat filename\n");
-        return EXIT_FAILURE;
-    }
-
-    /* For each file name argument in command line */
-    i = 1;
-    while (i < argc) {
-        output_file (argv[i]);
-        i++;
-    }
-    return EXIT_SUCCESS;
+	/* For each file name argument in command line */
+	int i = 1;
+	while (i < argc) {
+		output_file(argv[i]);
+		i++;
+	}
+	return EXIT_SUCCESS;
 }
 
 /*
  * Output file to screen
  */
-static void
-output_file(
-    const char *fn)
+static void output_file(const char *fn)
 {
-    FILE *fp;
+	/* Open file */
+	FILE *fp = fopen(fn, "r");
+	if (!fp) {
+		/* Could not open directory */
+		fprintf(stderr, "Cannot open %s (%s)\n", fn, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 
-    /* Open file */
-    fp = fopen (fn, "r");
-    if (fp != NULL) {
-        size_t n;
-        char buffer[4096];
+	/* Output file to screen */
+	size_t n;
+	do {
+		/* Read some bytes from file */
+		char buffer[4096];
+		n = fread(buffer, 1, 4096, fp);
 
-        /* Output file to screen */
-        do {
+		/* Output bytes to screen */
+		fwrite(buffer, 1, n, stdout);
+	} while (n != 0);
 
-            /* Read some bytes from file */
-            n = fread (buffer, 1, 4096, fp);
-
-            /* Output bytes to screen */
-            fwrite (buffer, 1, n, stdout);
-
-        } while (n != 0);
-
-        /* Close file */
-        fclose (fp);
-
-    } else {
-        /* Could not open directory */
-        fprintf (stderr, "Cannot open %s (%s)\n", fn, strerror (errno));
-        exit (EXIT_FAILURE);
-    }
+	/* Close file */
+	fclose(fp);
 }

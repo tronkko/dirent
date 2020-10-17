@@ -29,8 +29,8 @@
 #include <string.h>
 #include <wchar.h>
 #ifdef WIN32
-#   include <io.h>
-#   include <fcntl.h>
+#	include <io.h>
+#	include <fcntl.h>
 #endif
 #include <dirent.h>
 
@@ -39,184 +39,160 @@
 
 
 /* Forward-decl */
-static int update_directory (const wchar_t *dirname);
-static void db_open (void);
-static void db_close (void);
-static void db_store (const wchar_t *dirname);
+static int update_directory(const wchar_t *dirname);
+static void db_open(void);
+static void db_close(void);
+static void db_store(const wchar_t *dirname);
 
 
 /* Module local variables */
 static FILE *db = NULL;
 
 
-int
-main(
-    int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 #ifdef WIN32
-    int i;
-    int ok;
+	/* Prepare for unicode output */
+	_setmode(_fileno(stdout), _O_U16TEXT);
 
-    /* Prepare for unicode output */
-    _setmode (_fileno (stdout), _O_U16TEXT);
+	/* Open locate.db */
+	db_open();
 
-    /* Open locate.db */
-    db_open ();
+	/* For each directory in command line */
+	int i = 1;
+	while (i < argc) {
+		wchar_t buffer[PATH_MAX + 1];
+		errno_t error;
+		size_t n;
 
-    /* For each directory in command line */
-    i = 1;
-    while (i < argc) {
-        wchar_t buffer[PATH_MAX + 1];
-        errno_t error;
-        size_t n;
+		/* Convert ith argument to wide-character string */
+		error = mbstowcs_s(&n, buffer, PATH_MAX, argv[i], _TRUNCATE);
+		if (!error) {
 
-        /* Convert ith argument to wide-character string */
-        error = mbstowcs_s (&n, buffer, PATH_MAX, argv[i], _TRUNCATE);
-        if (!error) {
+			/* Scan directory for files */
+			int ok = update_directory(buffer);
+			if (!ok) {
+				wprintf(L"Cannot open directory %s\n", buffer);
+				exit(EXIT_FAILURE);
+			}
 
-            /* Scan directory for files */
-            ok = update_directory (buffer);
-            if (!ok) {
-                wprintf (L"Cannot open directory %s\n", buffer);
-                exit (EXIT_FAILURE);
-            }
+		}
 
-        }
+		i++;
+	}
 
-        i++;
-    }
+	/* Use current working directory if no arguments on command line */
+	if (argc == 1)
+		update_directory(L".");
 
-    /* Use current working directory if no arguments on command line */
-    if (argc == 1) {
-        update_directory (L".");
-    }
-
-    db_close ();
+	db_close();
 #else
-    printf ("updatedb only works on Microsoft Windows\n");
+	printf("updatedb only works on Microsoft Windows\n");
 #endif
-
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
 
 /* Find files recursively */
-static int
-update_directory(
-    const wchar_t *dirname)
+static int update_directory(const wchar_t *dirname)
 {
-    int ok = 0;
-
 #ifdef WIN32
-    _WDIR *dir;
-    wchar_t buffer[PATH_MAX + 2];
-    wchar_t *p = buffer;
-    const wchar_t *src;
-    wchar_t *end = &buffer[PATH_MAX];
+	wchar_t buffer[PATH_MAX + 2];
+	wchar_t *p = buffer;
+	wchar_t *end = &buffer[PATH_MAX];
 
-    /* Copy directory name to buffer */
-    src = dirname;
-    while (p < end  &&  *src != '\0') {
-        *p++ = *src++;
-    }
-    *p = '\0';
+	/* Copy directory name to buffer */
+	const wchar_t *src = dirname;
+	while (p < end  &&  *src != '\0') {
+		*p++ = *src++;
+	}
+	*p = '\0';
 
-    /* Open directory stream */
-    dir = _wopendir (dirname);
-    if (dir != NULL) {
-        struct _wdirent *ent;
+	/* Open directory stream */
+	_WDIR *dir = _wopendir(dirname);
+	if (!dir) {
+		/* Cannot open directory */
+		return /*failure*/ 0;
+	}
 
-        /* Print all files and directories within the directory */
-        while ((ent = _wreaddir (dir)) != NULL) {
-            wchar_t *q = p;
-            wchar_t c;
+	/* Print all files and directories within the directory */
+	struct _wdirent *ent;
+	while ((ent = _wreaddir (dir)) != NULL) {
+		wchar_t *q = p;
+		wchar_t c;
 
-            /* Get final character of directory name */
-            if (buffer < q) {
-                c = q[-1];
-            } else {
-                c = ':';
-            }
+		/* Get final character of directory name */
+		if (buffer < q)
+			c = q[-1];
+		else
+			c = ':';
 
-            /* Append directory separator if not already there */
-            if (c != ':'  &&  c != '/'  &&  c != '\\') {
-                *q++ = '/';
-            }
+		/* Append directory separator if not already there */
+		if (c != ':'  &&  c != '/'  &&  c != '\\')
+			*q++ = '/';
 
-            /* Append file name */
-            src = ent->d_name;
-            while (q < end  &&  *src != '\0') {
-                *q++ = *src++;
-            }
-            *q = '\0';
+		/* Append file name */
+		src = ent->d_name;
+		while (q < end  &&  *src != '\0') {
+			*q++ = *src++;
+		}
+		*q = '\0';
 
-            /* Decide what to do with the directory entry */
-            switch (ent->d_type) {
-            case DT_REG:
-                /* Store file name */
-                db_store (buffer);
-                break;
+		/* Decide what to do with the directory entry */
+		switch (ent->d_type) {
+		case DT_REG:
+			/* Store file name */
+			db_store(buffer);
+			break;
 
-            case DT_DIR:
-                /* Scan sub-directory recursively */
-                if (wcscmp (ent->d_name, L".") != 0
-                        &&  wcscmp (ent->d_name, L"..") != 0) {
-                    update_directory (buffer);
-                }
-                break;
+		case DT_DIR:
+			/* Scan sub-directory recursively */
+			if (wcscmp(ent->d_name, L".") != 0
+				&&  wcscmp(ent->d_name, L"..") != 0) {
+				update_directory(buffer);
+			}
+			break;
 
-            default:
-                /* Do not device entries */
-                /*NOP*/;
-            }
+		default:
+			/* Do not device entries */
+			/*NOP*/;
+		}
 
-        }
+	}
 
-        wclosedir (dir);
-        ok = 1;
-
-    } else {
-
-        /* Cannot open directory */
-        ok = 0;
-
-    }
+	wclosedir(dir);
+	return /*success*/ 1;
+#else
+	return /*failure*/ 0;
 #endif
-
-    return ok;
 }
 
 /* Store file name to locate.db */
-static void
-db_store(
-    const wchar_t *dirname)
+static void db_store(const wchar_t *dirname)
 {
 #ifdef WIN32
-    if (db) {
-        /* Output line to file */
-        fwprintf (db, L"%s\n", dirname);
-    } else {
-        wprintf (L"Database not open\n");
-        exit (EXIT_FAILURE);
-    }
+	if (!db) {
+		wprintf(L"Database not open\n");
+		exit(EXIT_FAILURE);
+	}
+
+	/* Output line to file */
+	fwprintf(db, L"%s\n", dirname);
 #endif
 }
 
 /* Open database file locate.db */
-static void
-db_open(
-    void)
+static void db_open(void)
 {
 #ifdef WIN32
-    if (db == NULL) {
-        errno_t error;
+	if (db)
+		return;
 
-        /* Open file for writing */
-        error = _wfopen_s (&db, DB_LOCATION, L"wt, ccs=UNICODE");
-        if (error) {
-            wprintf (L"Cannot open %s\n", DB_LOCATION);
-            exit (EXIT_FAILURE);
-        }
-    }
+	/* Open file for writing */
+	errno_t error = _wfopen_s(&db, DB_LOCATION, L"wt, ccs=UNICODE");
+	if (error) {
+		wprintf(L"Cannot open %s\n", DB_LOCATION);
+		exit(EXIT_FAILURE);
+	}
 #endif
 }
 
@@ -225,8 +201,11 @@ static void
 db_close(
     void)
 {
-    if (db) {
-        fclose (db);
-        db = NULL;
-    }
+	if (!db) {
+		return;
+	}
+
+	/* Close file */
+	fclose(db);
+	db = NULL;
 }
