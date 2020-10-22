@@ -364,6 +364,8 @@ static void dirent_set_errno(int error);
  */
 static _WDIR *_wopendir(const wchar_t *dirname)
 {
+	wchar_t *p;
+
 	/* Must have directory name */
 	if (dirname == NULL || dirname[0] == '\0') {
 		dirent_set_errno(ENOENT);
@@ -418,7 +420,7 @@ static _WDIR *_wopendir(const wchar_t *dirname)
 #endif
 
 	/* Append search pattern \* to the directory name */
-	wchar_t *p = dirp->patt + n;
+	p = dirp->patt + n;
 	switch (p[-1]) {
 	case '\\':
 	case '/':
@@ -756,11 +758,13 @@ static int readdir_r(
 /* Close directory stream */
 static int closedir(DIR *dirp)
 {
+	int ok;
+
 	if (!dirp)
 		goto exit_failure;
 
 	/* Close wide-character directory stream */
-	int ok = _wclosedir(dirp->wdirp);
+	ok = _wclosedir(dirp->wdirp);
 	dirp->wdirp = NULL;
 
 	/* Release multi-byte character version */
