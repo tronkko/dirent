@@ -5,41 +5,64 @@ information about files and directories under Linux/UNIX.  This project
 provides Linux compatible Dirent interface for Microsoft Windows.
 
 
+# How to Enable UTF-8 Support
+
+By default, Dirent functions expect that directory names are represented in
+the currently selected windows codepage.  Moverover, Dirent functions return
+file names in the currently selected codepage.  If you wish to use UTF-8 file
+names instead, then set the program's locale to ".utf8" or similar.  For
+example, you C main program might look like
+
+```
+#include <locale.h>
+
+int main(int argc, char *argv[])
+{
+    setlocale(LC_ALL, "LC_CTYPE=.utf8");
+
+    /*...*/
+}
+```
+
+For more information on UTF-8 support, please see setlocale in Visual Studio
+[C runtime library reference](https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=msvc-160#utf-8-support).
+
+
 # Installation
 
 Download the latest Dirent installation package from
 [GitHub](https://github.com/tronkko/dirent/releases) and
 unpack the installation file with 7-zip, for example.  The installation
-package contains dirent.h file as well as a few example programs and
-tests.
+package contains ``include/dirent.h`` file as well as a few example and test
+programs.
 
 
-## Install Dirent for All Programs
+## Installing Dirent for All Programs
 
 To make dirent.h available for all C/C++ programs, simply copy the
 ``include/dirent.h`` file to the system include directory.  System include
-directory contains header files such as assert.h and windows.h.  In Visual
-Studio 2008, for example, the system include may be found at
+directory contains header files such as ``assert.h`` and ``windows.h``.  In
+Visual Studio 2008, for example, the system include may be found at
 ``C:\Program Files\Microsoft Visual Studio 9.0\VC\include``.
 
-Everything you need is included in the single dirent.h file, and you can
+Everything you need is included in the single ``dirent.h`` file, and you can
 start using Dirent immediately -- there is no need to add files to your
 Visual Studio project.
 
 
-## Embed Dirent into Your Own Project
+## Embedding Dirent into Your Own Project
 
-If you wish to distribute dirent.h alongside with your own source code, then
-copy ``include/dirent.h`` file to a new sub-directory within your project and
-add that directory to include path on Windows while omitting the directory
+If you wish to distribute ``dirent.h`` alongside with your own source code,
+then copy ``include/dirent.h`` file to a new sub-directory within your project
+and add that directory to include path on Windows while omitting the directory
 under Linux/UNIX.  This allows your project to be compiled against native
-dirent.h on Linux/UNIX while substituting the functionality on Microsoft
+``dirent.h`` on Linux/UNIX while substituting the functionality on Microsoft
 Windows.
 
 
 ## Examples
 
-The installation package contains four example programs:
+The installation package contains six example programs:
 
 Program  | Purpose
 -------- | -----------------------------------------------------------------
@@ -50,9 +73,9 @@ locate   | Locate a file from database, e.g. locate notepad
 scandir  | Demonstrate scandir() function
 cat      | Print a text file to screen
 
-To build the example programs, first install [CMake](https://cmake.org/).
-Then, with CMake installed, open command prompt and create a temporary
-directory ``c:\temp\dirent`` for the build files as
+Please install [CMake](https://cmake.org/) to build example and test programs.
+Then, open command prompt and create a temporary directory ``c:\temp\dirent``
+for the build files as
 
 ```
 c:\
@@ -68,11 +91,14 @@ cmake d:\dirent
 ```
 
 where ``d:\dirent`` is the root directory of the Dirent package (containing
-this README.md and LICENSE file).
+this README.md file).  If wish to omit example programs from the
+build, then append the option ``-DDIRENT_BUILD_TESTS=OFF`` to the CMake
+command line.
 
-Once CMake is finished, open Visual Studio, load the generated dirent.sln file
-from the build directory and build the solution.  Once the build completes, run
-the example programs from the command prompt as
+Once CMake is finished, open Visual Studio, load the generated ``dirent.sln``
+file from the build directory and build the whole solution.  Once the build
+completes, run the example programs ls, find, updatedb and locate from the
+command prompt as
 
 ```
 cd Debug
@@ -82,8 +108,9 @@ updatedb c:\
 locate cmd.exe
 ```
 
-You can omit generation of test and example programs by appending option
-`-DDIRENT_BUILD_TESTS=OFF` to the CMake command line.
+Visual Studio project also contains a solution named ``check`` which can be
+used to verify that Dirent works as expected.  Just build the solution from
+Visual Studio to run the test programs.
 
 
 # Contributing
