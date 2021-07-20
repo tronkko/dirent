@@ -37,16 +37,13 @@ int main(int argc, char *argv[])
 	FILE *fp;
 	int counter = 0;
 
-	(void) argc;
-	(void) argv;
-
 
 	/* Initialize random number generator */
 	srand(((int) time(NULL)) * 257 + ((int) GetCurrentProcessId()));
 
 	/* Set current locale */
 	if (argc > 1) {
-		printf("Locale %s\n", argv[1]); 
+		printf("Locale %s\n", argv[1]);
 		setlocale(LC_ALL, argv[1]);
 	} else {
 		setlocale(LC_ALL, "");
@@ -63,10 +60,8 @@ int main(int argc, char *argv[])
 
 	/* Append random directory name */
 	for (k = 0; k < 10; k++) {
-		char c;
-
 		/* Generate random character */
-		c = "abcdefghijklmnopqrstuvwxyz"[rand() % 26];
+		char c = "abcdefghijklmnopqrstuvwxyz"[rand() % 26];
 
 		/* Append character to paths */
 		assert(i < MAX_PATH  &&  j < MAX_PATH);
@@ -144,7 +139,6 @@ int main(int argc, char *argv[])
 	/* Read through entries */
 	counter = 0;
 	while ((wentry = _wreaddir(wdir)) != NULL) {
-
 		/* Skip pseudo directories */
 		if (wcscmp(wentry->d_name, L".") == 0) {
 			continue;
@@ -201,7 +195,6 @@ int main(int argc, char *argv[])
 		/* Close file */
 		ok = CloseHandle(fh);
 		assert(ok);
-
 	}
 	assert(counter == 1);
 
@@ -223,7 +216,6 @@ int main(int argc, char *argv[])
 	/* Read through entries */
 	counter = 0;
 	while ((entry = readdir(dir)) != NULL) {
-
 		/* Skip pseudo directories */
 		if (strcmp(entry->d_name, ".") == 0) {
 			continue;
@@ -270,7 +262,6 @@ int main(int argc, char *argv[])
 
 		/* Close file */
 		fclose(fp);
-
 	}
 	assert(counter == 1);
 
@@ -325,7 +316,6 @@ int main(int argc, char *argv[])
 	/* Read through entries */
 	counter = 0;
 	while ((entry = readdir(dir)) != NULL) {
-
 		/* Skip pseudo directories */
 		if (strcmp(entry->d_name, ".") == 0) {
 			continue;
@@ -381,19 +371,15 @@ int main(int argc, char *argv[])
 
 		/* Close file */
 		fclose(fp);
-
 	}
 	assert(counter == 2);
 
 	/* Close directory */
 	closedir(dir);
-
 #else
-
 	/* Linux */
 	(void) argc;
 	(void) argv;
-
 #endif
 	return EXIT_SUCCESS;
 }
