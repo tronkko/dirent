@@ -31,8 +31,11 @@
 #include <errno.h>
 #include <locale.h>
 
+#define ERR_MSG_LEN 256
+
 static void list_directory(const char* dirname);
 static void list_size(const char* full_path);
+static void print_error_msg(const char* dirname, char* msg_buffer);
 static void get_full_path(const char* dirname, const char* filename,
     char* path_pointer);
 
@@ -65,9 +68,10 @@ static void list_directory(const char* dirname)
     /* Open directory stream */
     DIR* dir = opendir(dirname);
     if (!dir) {
-        /* Could not open directory */
-        fprintf(stderr,
-            "Cannot open %s (%s)\n", dirname, strerror(errno));
+        /* Could not open directory; print error message */
+        char msg_buff[ERR_MSG_LEN];
+        print_error_msg(dirname, msg_buff);
+
         exit(EXIT_FAILURE);
     }
 
@@ -107,6 +111,32 @@ static void list_directory(const char* dirname)
     }
 
     closedir(dir);
+}
+
+/*
+ * Enforce error message size limit and ensure valid error number.
+ * Print error message.
+ */
+static void print_error_msg(const char* dirname, char* msg_buff)
+{
+    int error_num;
+    error_num = strerror_s(msg_buff, ERR_MSG_LEN, errno);
+
+    switch (error_num) {
+    case 0:
+        printf("Cannot open %s (%s)\n", dirname, msg_buff);
+        break;
+
+    case EINVAL:
+        printf("strerror_s() failed: invalid error code, %d\n",
+            error_num);
+        break;
+
+    case ERANGE:
+        printf("strerror_s() failed: buffer too small: %d\n",
+            ERR_MSG_LEN);
+        break;
+    }
 }
 
 /*
