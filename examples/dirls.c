@@ -13,13 +13,13 @@
  *     budget.xlsx 19180
  *     directory_1/
  *     directory_2/
- *     shopping_list.txt 320
+ *     notes.txt 320
  *     to_do_list.txt 245
  *
  * The dirls command provided by this file is only an example: the command
  * does not have any fancy options.
  *
- * Copyright (C) 1998-2019 Toni Ronkko
+ * Copyright (C) 2006-2012 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed
  * under the MIT license.  For all details and documentation, see
  * https://github.com/tronkko/dirent
@@ -70,6 +70,8 @@ static void list_directory(const char* dirname)
     if (!dir) {
         /* Could not open directory; print error message */
         char msg_buff[ERR_MSG_LEN];
+
+        /* Function replaces strerror with strerror_s */
         print_error_msg(dirname, msg_buff);
 
         exit(EXIT_FAILURE);
@@ -114,6 +116,19 @@ static void list_directory(const char* dirname)
 }
 
 /*
+ * Print file size next to file name.
+ */
+static void list_size(const char* full_path)
+{
+    struct stat stbuf;
+
+    if (stat(full_path, &stbuf) == -1)
+        printf("%s %s\n", "Can't access", full_path);
+    else
+        printf("%d\n", stbuf.st_size);
+}
+
+/*
  * Enforce error message size limit and ensure valid error number.
  * Print error message.
  */
@@ -137,19 +152,6 @@ static void print_error_msg(const char* dirname, char* msg_buff)
             ERR_MSG_LEN);
         break;
     }
-}
-
-/*
- * Print file size next to file name.
- */
-static void list_size(const char* full_path)
-{
-    struct stat stbuf;
-
-    if (stat(full_path, &stbuf) == -1)
-        printf("%s %s\n", "Can't access", full_path);
-    else
-        printf("%d\n", stbuf.st_size);
 }
 
 /*
