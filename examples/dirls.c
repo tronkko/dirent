@@ -4,7 +4,7 @@
  * Compile this file with Visual Studio and run the produced command in
  * console with a directory name argument.  For example, command
  *
- *     dirls "C:\Users\User1\Documents"
+ *     dirls "C:\Users\User 1\Documents"
  *
  * might output something like
  *
