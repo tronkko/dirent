@@ -19,7 +19,7 @@
  * The dirls command provided by this file is only an example: the command
  * does not have any fancy options.
  *
- * Copyright (C) 2006-2012 Toni Ronkko
+ * Copyright (C) 1998-2019 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed
  * under the MIT license.  For all details and documentation, see
  * https://github.com/tronkko/dirent
