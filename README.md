@@ -7,11 +7,11 @@ provides Linux compatible Dirent interface for Microsoft Windows.
 
 # How to Enable UTF-8 Support
 
-By default, Dirent functions expect that directory names are represented in
+By default, Dirent functions expect the directory names to be represented in
 the currently selected windows codepage.  Moverover, Dirent functions return
-file names in the currently selected codepage.  If you wish to use UTF-8 file
+file names in the presently selected codepage.  If you wish to use UTF-8 file
 names instead, then set the program's locale to ".utf8" or similar.  For
-example, you C main program might look like
+example, your C main program might look like-
 
 ```
 #include <locale.h>
