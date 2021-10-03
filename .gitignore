@@ -17,6 +17,7 @@
 /t-cplusplus
 /t-unicode
 /t-strverscmp
+/t-utf8
 /updatedb
 /*.filters
 /*.vcxproj
