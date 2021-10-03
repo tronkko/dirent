@@ -38,22 +38,22 @@ static int find_directory(const char *dirname);
 
 int main(int argc, char *argv[])
 {
-    /* Select default locale */
-    setlocale(LC_ALL, "");
+	/* Select default locale */
+	setlocale(LC_ALL, "");
 
-    /* For each directory in command line */
-    int i = 1;
-    while (i < argc) {
-        if (!find_directory(argv[i]))
-            exit(EXIT_FAILURE);
-        i++;
-    }
+	/* For each directory in command line */
+	int i = 1;
+	while (i < argc) {
+		if (!find_directory(argv[i]))
+			exit(EXIT_FAILURE);
+		i++;
+	}
 
-    /* List current working directory if no arguments on command line */
-    if (argc == 1)
-        find_directory(".");
+	/* List current working directory if no arguments on command line */
+	if (argc == 1)
+		find_directory(".");
 
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
 
 /* Find files and subdirectories recursively */
