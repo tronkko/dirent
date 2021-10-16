@@ -36,8 +36,7 @@
 static void list_directory(const char* dirname);
 static void list_size(const char* full_path);
 static void print_error_msg(const char* dirname, char* msg_buffer);
-static void get_full_path(const char* dirname, const char* filename,
-    char* path_pointer);
+static void get_full_path(const char* dirname, const char* filename, char* buffer);
 
 
 int main(int argc, char* argv[])
@@ -78,16 +77,17 @@ static void list_directory(const char* dirname)
     }
 
     struct dirent* ent;
-    char path[MAX_PATH];
     /* Print all files, file sizes, and directories within the directory */
     while ((ent = readdir(dir)) != NULL) {
+        char buffer[PATH_MAX + 2];
+
         switch (ent->d_type) {
         case DT_REG:
             printf("%s ", ent->d_name);
             /* Get full file path */
-            get_full_path(dirname, ent->d_name, path);
+            get_full_path(dirname, ent->d_name, buffer);
             /* Print file size next to file name */
-            list_size(path);
+            list_size(buffer);
             break;
 
         case DT_DIR:
@@ -97,17 +97,17 @@ static void list_directory(const char* dirname)
         case DT_LNK:
             printf("%s@ ", ent->d_name);
             /* Get full file path */
-            get_full_path(dirname, ent->d_name, path);
+            get_full_path(dirname, ent->d_name, buffer);
             /* Print file size next to file name */
-            list_size(path);
+            list_size(buffer);
             break;
 
         default:
             printf("%s* ", ent->d_name);
             /* Get full file path */
-            get_full_path(dirname, ent->d_name, path);
+            get_full_path(dirname, ent->d_name, buffer);
             /* Print file size next to file name */
-            list_size(path);
+            list_size(buffer);
             break;
         }
     }
@@ -158,41 +158,35 @@ static void print_error_msg(const char* dirname, char* msg_buff)
  * Combine directory and file name.
  * Write full path to memory.
  */
-static void get_full_path(
-    const char* dirname, const char* filename, char* path_pointer)
+static void get_full_path(const char* dirname, const char* filename, char* buffer)
 {
-    /* If '\' is included in command line argument at end of file path */
-    if (dirname[strlen(dirname) - 1] == '\\') {
-        /* Combine path and filename to create full path */
-        int j;
-        for (j = 0; j < strlen(dirname); j++) {
-            path_pointer[j] = dirname[j];
-        }
+    char* dest = buffer;
+    char* end = &buffer[PATH_MAX];
 
-        int i = 0;
-        for (i = 0; i < strlen(filename); i++) {
-            path_pointer[j] = filename[i];
-            j++;
-        }
-        path_pointer[j] = '\0';
+    /* Copy directory name to buffer */
+    const char* src = dirname;
+    while (dest < end && *src != '\0') {
+        *dest++ = *src++;
     }
-    /* Add '\' to end of command line argument if not included by user */
-    else {
-        /* Combine path and filename to create full path */
-        int j;
-        for (j = 0; j < strlen(dirname); j++) {
-            path_pointer[j] = dirname[j];
-        }
+    *dest = '\0';
 
-        /* Add backslash after directory path, before file name. */
-        path_pointer[j] = '\\';
+    char* new_dest = dest;
+    char c;
 
-        int i = 0;
-        j++;
-        for (i = 0; i < strlen(filename); i++) {
-            path_pointer[j] = filename[i];
-            j++;
-        }
-        path_pointer[j] = '\0';
+    /* Get final character of directory name */
+    if (buffer < new_dest)
+        c = new_dest[-1];
+    else
+        c = ':';
+
+    /* Append directory separator if not already there */
+    if (c != ':' && c != '/' && c != '\\')
+        *new_dest++ = '/';
+
+    /* Append file name */
+    src = filename;
+    while (new_dest < end && *src != '\0') {
+        *new_dest++ = *src++;
     }
+    *new_dest = '\0';
 }
