@@ -164,7 +164,6 @@ static void get_full_path(
     /* If '\' is included in command line argument at end of file path */
     if (dirname[strlen(dirname) - 1] == '\\') {
         /* Combine path and filename to create full path */
-        size_t total = strlen(dirname) + strlen(filename);
         int j;
         for (j = 0; j < strlen(dirname); j++) {
             path_pointer[j] = dirname[j];
@@ -180,7 +179,6 @@ static void get_full_path(
     /* Add '\' to end of command line argument if not included by user */
     else {
         /* Combine path and filename to create full path */
-        size_t total = strlen(dirname) + strlen(filename);
         int j;
         for (j = 0; j < strlen(dirname); j++) {
             path_pointer[j] = dirname[j];
