@@ -145,17 +145,17 @@ static int list_top_level(const char* dirname)
 			if (strcmp(ent->d_name, ".") == 0) {
 				printf("\\. ");
 				search_recurse(buffer);
-				printf("%d\n", size);
+				printf("%ld\n", size);
 			}
 			else if (strcmp(ent->d_name, "..") == 0) {
 				printf("\\.. ");
 				search_recurse(buffer);
-				printf("%d\n", size);
+				printf("%ld\n", size);
 			}
 			else {
 				printf("%s\\ ", buffer);
 				search_recurse(buffer);
-				printf("%d\n", size);
+				printf("%ld\n", size);
 			}
 			
 			break;
