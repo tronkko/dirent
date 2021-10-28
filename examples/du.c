@@ -142,21 +142,17 @@ static int list_top_level(const char* dirname)
 			/* Scan sub-directory recursively */
 			/* Output directory name */
 			
-			if (strcmp(ent->d_name, ".") == 0) {
+			if (strcmp(ent->d_name, ".") == 0)
 				printf("\\. ");
-				search_recurse(buffer);
-				printf("%ld\n", size);
-			}
-			else if (strcmp(ent->d_name, "..") == 0) {
+			
+			else if (strcmp(ent->d_name, "..") == 0)
 				printf("\\.. ");
-				search_recurse(buffer);
-				printf("%ld\n", size);
-			}
-			else {
+			
+			else
 				printf("%s\\ ", buffer);
-				search_recurse(buffer);
-				printf("%ld\n", size);
-			}
+				
+			search_recurse(buffer);
+			printf("%ld\n", size);
 			
 			break;
 
