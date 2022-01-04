@@ -567,9 +567,15 @@ static WIN32_FIND_DATAW *dirent_first(_WDIR *dirp)
 		return NULL;
 
 	/* Open directory and retrieve the first entry */
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+	dirp->handle = FindFirstFileExFromAppW(
+		dirp->patt, FindExInfoStandard, &dirp->data,
+		FindExSearchNameMatch, NULL, 0);
+#else
 	dirp->handle = FindFirstFileExW(
 		dirp->patt, FindExInfoStandard, &dirp->data,
 		FindExSearchNameMatch, NULL, 0);
+#endif
 	if (dirp->handle == INVALID_HANDLE_VALUE)
 		goto error;
 
