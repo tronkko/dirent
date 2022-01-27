@@ -34,7 +34,7 @@
 
 
 static int list_directory(const char *dirname, const char *sub_dirname,
-	int *total_size, int *sub_dir_size, int dir_count);
+	double *total_size, double *sub_dir_size, int dir_count);
 
 
 int main(int argc, char *argv[])
@@ -51,15 +51,15 @@ int main(int argc, char *argv[])
 	 * Keep track of the size of everything in the directory or directories
 	 * given in the command line arguments
 	 */
-	int t = 0;
-	int *total_size = &t;
+	double t = 0;
+	double *total_size = &t;
 
 	/*
 	 * Keep track of the size of everything in each subdirectory of the
 	 * director or directories given in the command line arguments
 	 */
-	int s = 0;
-	int *sub_dir_size = &s;
+	double s = 0;
+	double *sub_dir_size = &s;
 	
 	/* For each directory in command line */
 	int i = 1;
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 		 * Before going to the next directory argument (if any), print the
 		 * directory name and the total size at the end of the list
 		 */
-		printf("%d\t%s/\n\n", *total_size, argv[i]);
+		printf("%15.0f\t\t%s/\n\n", *total_size, argv[i]);
 
 		/*
 		 * Reset the top directory and subdirectory total sizes in preparation
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
 /* Find files and subdirectories recursively; list their sizes */
 static int list_directory(const char *dirname, const char *sub_dirname,
-	int *total_size, int *sub_dir_size, int dir_count)
+	double *total_size, double *sub_dir_size, int dir_count)
 {
 	dir_count = 0;
 	struct stat stbuf;
@@ -116,7 +116,7 @@ static int list_directory(const char *dirname, const char *sub_dirname,
 	if (!dir) {
 		/* Could not open directory */
 		fprintf(stderr,
-			"Cannot open %s (%s)\n", sub_dirname, strerror(errno));
+			"\t\t\tCannot open %s (%s)\n", sub_dirname, strerror(errno));
 
 		/* Failure */
 		return 0;
@@ -152,7 +152,7 @@ static int list_directory(const char *dirname, const char *sub_dirname,
 			case DT_REG:
 
 				if (stat(buffer, &stbuf) == -1) {
-					printf("%s %s\n", "Can't access", buffer);
+					printf("\t\t\t%s %s\n", "Can't access", buffer);
 				}
 				else {
 					/*
@@ -162,7 +162,7 @@ static int list_directory(const char *dirname, const char *sub_dirname,
 					 */
 					if (strcmp(dirname, sub_dirname) == 0) {
 						/* Output file name and file size with directory */
-						printf("%d\t%s\n", stbuf.st_size, buffer);
+						printf("%15d\t\t%s\n", stbuf.st_size, buffer);
 					}
 					*sub_dir_size += stbuf.st_size;
 					*total_size += stbuf.st_size;
@@ -202,7 +202,7 @@ static int list_directory(const char *dirname, const char *sub_dirname,
 		 */
 		if (strcmp(dirname, sub_dirname) == 0 && dir_count > 0) {
 			/* Output file name and file size with directory */
-			printf("%d\t%s/\n", *sub_dir_size, buffer);
+			printf("%15.0f\t\t%s/\n", *sub_dir_size, buffer);
 	
 			/* Reset the running total for our sub directory size */
 			*sub_dir_size = 0;
