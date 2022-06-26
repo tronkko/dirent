@@ -25,14 +25,13 @@
 #undef NDEBUG
 #include <assert.h>
 
-
 /* Filter and sort functions */
 static int only_readme(const struct dirent *entry);
 static int no_directories(const struct dirent *entry);
 static int reverse_alpha(const struct dirent **a, const struct dirent **b);
 
-
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 	struct dirent **files;
 	int i;
@@ -256,35 +255,22 @@ int main(int argc, char *argv[])
 }
 
 /* Only pass README.txt file */
-static int only_readme(const struct dirent *entry)
+static int
+only_readme(const struct dirent *entry)
 {
-	int pass;
-
-	if (strcmp(entry->d_name, "README.txt") == 0) {
-		pass = 1;
-	} else {
-		pass = 0;
-	}
-
-	return pass;
+	return strcmp(entry->d_name, "README.txt") == 0;
 }
 
 /* Filter out directories */
-static int no_directories(const struct dirent *entry)
+static int
+no_directories(const struct dirent *entry)
 {
-	int pass;
-
-	if (entry->d_type != DT_DIR) {
-		pass = 1;
-	} else {
-		pass = 0;
-	}
-
-	return pass;
+	return entry->d_type != DT_DIR;
 }
 
 /* Sort in reverse direction */
-static int reverse_alpha(const struct dirent **a, const struct dirent **b)
+static int
+reverse_alpha(const struct dirent **a, const struct dirent **b)
 {
 	return strcoll((*b)->d_name, (*a)->d_name);
 }

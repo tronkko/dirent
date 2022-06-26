@@ -31,8 +31,8 @@
 
 static void list_directory(const char *dirname);
 
-
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 	/* Select default locale */
 	setlocale(LC_ALL, "");
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
  */
 static void
 list_directory(
-    const char *dirname)
+	const char *dirname)
 {
 	/* Scan files in directory */
 	struct dirent **files;

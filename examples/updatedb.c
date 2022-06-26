@@ -37,19 +37,17 @@
 /* File name and location of database file */
 #define DB_LOCATION L"locate.db"
 
-
 /* Forward-decl */
 static int update_directory(const wchar_t *dirname);
 static void db_open(void);
 static void db_close(void);
 static void db_store(const wchar_t *dirname);
 
-
 /* Module local variables */
 static FILE *db = NULL;
 
-
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 #ifdef WIN32
 	/* Prepare for unicode output */
@@ -93,7 +91,8 @@ int main(int argc, char *argv[])
 }
 
 /* Find files recursively */
-static int update_directory(const wchar_t *dirname)
+static int
+update_directory(const wchar_t *dirname)
 {
 #ifdef WIN32
 	wchar_t buffer[PATH_MAX + 2];
@@ -167,7 +166,8 @@ static int update_directory(const wchar_t *dirname)
 }
 
 /* Store file name to locate.db */
-static void db_store(const wchar_t *dirname)
+static void
+db_store(const wchar_t *dirname)
 {
 #ifdef WIN32
 	if (!db) {
@@ -181,7 +181,8 @@ static void db_store(const wchar_t *dirname)
 }
 
 /* Open database file locate.db */
-static void db_open(void)
+static void
+db_open(void)
 {
 #ifdef WIN32
 	if (db)
@@ -199,11 +200,10 @@ static void db_open(void)
 /* Close database file */
 static void
 db_close(
-    void)
+	void)
 {
-	if (!db) {
+	if (!db)
 		return;
-	}
 
 	/* Close file */
 	fclose(db);

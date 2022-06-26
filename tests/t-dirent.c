@@ -33,7 +33,8 @@ static void test_filename(void);
 static void test_readdir(void);
 static void test_wreaddir(void);
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 	(void) argc;
 	(void) argv;
@@ -55,7 +56,8 @@ int main(int argc, char *argv[])
 }
 
 /* Test file type macros */
-static void test_macros(void)
+static void
+test_macros(void)
 {
 	assert(DTTOIF(DT_REG) == S_IFREG);
 	assert(DTTOIF(DT_DIR) == S_IFDIR);
@@ -73,7 +75,8 @@ static void test_macros(void)
 }
 
 /* Test basic directory retrieval */
-static void test_retrieval(void)
+static void
+test_retrieval(void)
 {
 	/* Open directory */
 	DIR *dir = opendir("tests/1");
@@ -161,7 +164,8 @@ static void test_retrieval(void)
 }
 
 /* Function opendir() fails if directory doesn't exist */
-static void test_nonexistent(void)
+static void
+test_nonexistent(void)
 {
 	DIR *dir = opendir("tests/invalid");
 	assert(dir == NULL);
@@ -169,7 +173,8 @@ static void test_nonexistent(void)
 }
 
 /* Function opendir() fails if pathname is really a file */
-static void test_isfile(void)
+static void
+test_isfile(void)
 {
 	DIR *dir = opendir("tests/1/file");
 	assert(dir == NULL);
@@ -177,7 +182,8 @@ static void test_isfile(void)
 }
 
 /* Function opendir() fails if pathname is a zero-length string */
-static void test_zero(void)
+static void
+test_zero(void)
 {
 	DIR *dir = opendir("");
 	assert(dir == NULL);
@@ -185,7 +191,8 @@ static void test_zero(void)
 }
 
 /* Test rewind of directory stream */
-static void test_rewind(void)
+static void
+test_rewind(void)
 {
 	/* Open directory */
 	DIR *dir = opendir("tests/1");
@@ -251,7 +258,8 @@ static void test_rewind(void)
 }
 
 /* Test rewind with intervening change of working directory */
-static void test_chdir(void)
+static void
+test_chdir(void)
 {
 	/* Open directory */
 	DIR *dir = opendir("tests/1");
@@ -326,7 +334,8 @@ static void test_chdir(void)
 }
 
 /* Test long file name */
-static void test_filename(void)
+static void
+test_filename(void)
 {
 	/* Open directory */
 	DIR *dir = opendir("tests/2");
@@ -390,7 +399,8 @@ static void test_filename(void)
 }
 
 /* Test basic directory retrieval with readdir_r */
-static void test_readdir(void)
+static void
+test_readdir(void)
 {
 	/* Open directory */
 	DIR *dir = opendir("tests/1");
@@ -493,7 +503,8 @@ static void test_readdir(void)
 }
 
 /* Basic directory retrieval with _wreaddir_r */
-static void test_wreaddir(void)
+static void
+test_wreaddir(void)
 {
 #ifdef WIN32
 	/* Open directory */
