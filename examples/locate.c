@@ -44,30 +44,24 @@ static int db_read(wchar_t *buffer, size_t max);
 /* Module local variables */
 static FILE *db = NULL;
 
+#ifdef _MSC_VER
 int
-main(int argc, char *argv[])
+wmain(int argc, wchar_t *argv[])
 {
-#ifdef WIN32
 	/* Prepare for unicode output */
 	_setmode(_fileno(stdout), _O_U16TEXT);
 
 	/* For each pattern in command line */
 	int i = 1;
 	while (i < argc) {
-		wchar_t buffer[PATH_MAX + 1];
-		size_t n;
 		int count = 0;
 
-		/* Convert ith argument to wide-character string */
-		errno_t error = mbstowcs_s(&n, buffer, PATH_MAX, argv[i], _TRUNCATE);
-		if (!error) {
-			/* Find files matching pattern */
-			count = db_locate(buffer);
+		/* Find files matching pattern */
+		count = db_locate(argv[i]);
 
-			/* Output warning if string is not found */
-			if (count == 0) {
-				wprintf(L"%s not found\n", buffer);
-			}
+		/* Output warning if string is not found */
+		if (count == 0) {
+			wprintf(L"%s not found\n", argv[i]);
 		}
 
 		i++;
@@ -77,11 +71,16 @@ main(int argc, char *argv[])
 		wprintf(L"Usage: locate pattern\n");
 		exit(EXIT_FAILURE);
 	}
-#else
-	printf("locate only works on Microsoft Windows\n");
-#endif
 	return EXIT_SUCCESS;
 }
+#else
+int
+main(int argc, char *argv[])
+{
+	printf("locate only works on Microsoft Windows\n");
+	return EXIT_SUCCESS;
+}
+#endif
 
 /* Match pattern against files in locate.db file */
 static int

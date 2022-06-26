@@ -46,10 +46,10 @@ static void db_store(const wchar_t *dirname);
 /* Module local variables */
 static FILE *db = NULL;
 
+#ifdef _MSC_VER
 int
-main(int argc, char *argv[])
+wmain(int argc, wchar_t *argv[])
 {
-#ifdef WIN32
 	/* Prepare for unicode output */
 	_setmode(_fileno(stdout), _O_U16TEXT);
 
@@ -59,21 +59,11 @@ main(int argc, char *argv[])
 	/* For each directory in command line */
 	int i = 1;
 	while (i < argc) {
-		wchar_t buffer[PATH_MAX + 1];
-		errno_t error;
-		size_t n;
-
-		/* Convert ith argument to wide-character string */
-		error = mbstowcs_s(&n, buffer, PATH_MAX, argv[i], _TRUNCATE);
-		if (!error) {
-
-			/* Scan directory for files */
-			int ok = update_directory(buffer);
-			if (!ok) {
-				wprintf(L"Cannot open directory %s\n", buffer);
-				exit(EXIT_FAILURE);
-			}
-
+		/* Scan directory for files */
+		int ok = update_directory(argv[i]);
+		if (!ok) {
+			wprintf(L"Cannot open directory %s\n", argv[i]);
+			exit(EXIT_FAILURE);
 		}
 
 		i++;
@@ -84,11 +74,16 @@ main(int argc, char *argv[])
 		update_directory(L".");
 
 	db_close();
-#else
-	printf("updatedb only works on Microsoft Windows\n");
-#endif
 	return EXIT_SUCCESS;
 }
+#else
+int
+main(int argc, char *argv[])
+{
+	printf("updatedb only works on Microsoft Windows\n");
+	return EXIT_SUCCESS;
+}
+#endif
 
 /* Find files recursively */
 static int
