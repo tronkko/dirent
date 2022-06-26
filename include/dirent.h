@@ -224,7 +224,7 @@ struct _wdirent {
 	/* Always zero */
 	long d_ino;
 
-	/* File position within stream */
+	/* Position of next file in a directory stream */
 	long d_off;
 
 	/* Structure size */
@@ -251,6 +251,9 @@ struct _WDIR {
 	/* True if data is valid */
 	int cached;
 
+	/* True if next entry is invalid */
+	int invalid;
+
 	/* Win32 search handle */
 	HANDLE handle;
 
@@ -264,7 +267,7 @@ struct dirent {
 	/* Always zero */
 	long d_ino;
 
-	/* File position within stream */
+	/* Position of next file in a directory stream */
 	long d_off;
 
 	/* Structure size */
@@ -303,8 +306,14 @@ static int _wreaddir_r(
 static int closedir(DIR *dirp);
 static int _wclosedir(_WDIR *dirp);
 
-static void rewinddir(DIR* dirp);
-static void _wrewinddir(_WDIR* dirp);
+static void rewinddir(DIR *dirp);
+static void _wrewinddir(_WDIR *dirp);
+
+static long telldir(DIR *dirp);
+static long _wtelldir(_WDIR *dirp);
+
+static void seekdir(DIR *dirp, long loc);
+static void _wseekdir(_WDIR *dirp, long loc);
 
 static int scandir(const char *dirname, struct dirent ***namelist,
 	int (*filter)(const struct dirent*),
@@ -323,6 +332,8 @@ static int strverscmp(const char *a, const char *b);
 #define wreaddir _wreaddir
 #define wclosedir _wclosedir
 #define wrewinddir _wrewinddir
+#define wtelldir _wtelldir
+#define wseekdir _wseekdir
 
 /* Compatibility with older Microsoft compilers and non-Microsoft compilers */
 #if !defined(_MSC_VER) || _MSC_VER < 1400
@@ -339,6 +350,7 @@ static int strverscmp(const char *a, const char *b);
 /* Internal utility functions */
 static WIN32_FIND_DATAW *dirent_first(_WDIR *dirp);
 static WIN32_FIND_DATAW *dirent_next(_WDIR *dirp);
+static long dirent_hash(WIN32_FIND_DATAW *datap);
 
 #if !defined(_MSC_VER) || _MSC_VER < 1400
 static int dirent_mbstowcs_s(
@@ -362,7 +374,8 @@ static void dirent_set_errno(int error);
  * internal working area that is used to retrieve individual directory
  * entries.
  */
-static _WDIR *_wopendir(const wchar_t *dirname)
+static _WDIR *
+_wopendir(const wchar_t *dirname)
 {
 	wchar_t *p;
 
@@ -381,6 +394,7 @@ static _WDIR *_wopendir(const wchar_t *dirname)
 	dirp->handle = INVALID_HANDLE_VALUE;
 	dirp->patt = NULL;
 	dirp->cached = 0;
+	dirp->invalid = 0;
 
 	/*
 	 * Compute the length of full path plus zero terminator
@@ -455,7 +469,8 @@ exit_closedir:
  * Returns pointer to static directory entry which may be overwritten by
  * subsequent calls to _wreaddir().
  */
-static struct _wdirent *_wreaddir(_WDIR *dirp)
+static struct _wdirent *
+_wreaddir(_WDIR *dirp)
 {
 	/*
 	 * Read directory entry to buffer.  We can safely ignore the return
@@ -474,9 +489,17 @@ static struct _wdirent *_wreaddir(_WDIR *dirp)
  * Returns zero on success.  If end of directory stream is reached, then sets
  * result to NULL and returns zero.
  */
-static int _wreaddir_r(
+static int
+_wreaddir_r(
 	_WDIR *dirp, struct _wdirent *entry, struct _wdirent **result)
 {
+	/* Validate directory handle */
+	if (!dirp || dirp->handle == INVALID_HANDLE_VALUE || !dirp->patt) {
+		dirent_set_errno(EBADF);
+		*result = NULL;
+		return -1;
+	}
+
 	/* Read next directory entry */
 	WIN32_FIND_DATAW *datap = dirent_next(dirp);
 	if (!datap) {
@@ -490,17 +513,17 @@ static int _wreaddir_r(
 	 * long to fit in to the destination buffer, then truncate file name
 	 * to PATH_MAX characters and zero-terminate the buffer.
 	 */
-	size_t n = 0;
-	while (n < PATH_MAX && datap->cFileName[n] != 0) {
-		entry->d_name[n] = datap->cFileName[n];
-		n++;
+	size_t i = 0;
+	while (i < PATH_MAX && datap->cFileName[i] != 0) {
+		entry->d_name[i] = datap->cFileName[i];
+		i++;
 	}
-	entry->d_name[n] = 0;
+	entry->d_name[i] = 0;
 
 	/* Length of file name excluding zero terminator */
-	entry->d_namlen = n;
+	entry->d_namlen = i;
 
-	/* File type */
+	/* Determine file type */
 	DWORD attr = datap->dwFileAttributes;
 	if ((attr & FILE_ATTRIBUTE_DEVICE) != 0)
 		entry->d_type = DT_CHR;
@@ -509,9 +532,21 @@ static int _wreaddir_r(
 	else
 		entry->d_type = DT_REG;
 
-	/* Reset dummy fields */
+	/* Read the next directory entry to cache */
+	datap = dirent_next(dirp);
+	if (datap) {
+		/* Compute 31-bit hash of the next directory entry */
+		entry->d_off = dirent_hash(datap);
+
+		/* Push the next directory entry back to cache */
+		dirp->cached = 1;
+	} else {
+		/* End of directory stream */
+		entry->d_off = (long) ((~0UL) >> 1);
+	}
+
+	/* Reset other fields */
 	entry->d_ino = 0;
-	entry->d_off = 0;
 	entry->d_reclen = sizeof(struct _wdirent);
 
 	/* Set result address */
@@ -524,18 +559,28 @@ static int _wreaddir_r(
  * DIR structure as well as any directory entry read previously by
  * _wreaddir().
  */
-static int _wclosedir(_WDIR *dirp)
+static int
+_wclosedir(_WDIR *dirp)
 {
 	if (!dirp) {
 		dirent_set_errno(EBADF);
 		return /*failure*/-1;
 	}
 
-	/* Release search handle */
-	if (dirp->handle != INVALID_HANDLE_VALUE)
+	/*
+	 * Release search handle if we have one.  Being able to handle
+	 * partially initialized _WDIR structure allows us to use this
+	 * function to handle errors occuring within _wopendir.
+	 */
+	if (dirp->handle != INVALID_HANDLE_VALUE) {
 		FindClose(dirp->handle);
+	}
 
-	/* Release search pattern */
+	/*
+	 * Release search pattern.  Note that we don't need to care if
+	 * dirp->patt is NULL or not: function free is guaranteed to act
+	 * appropriately.
+	 */
 	free(dirp->patt);
 
 	/* Release directory structure */
@@ -549,23 +594,21 @@ static int _wclosedir(_WDIR *dirp)
  */
 static void _wrewinddir(_WDIR* dirp)
 {
-	if (!dirp)
+	/* Check directory pointer */
+	if (!dirp || dirp->handle == INVALID_HANDLE_VALUE || !dirp->patt)
 		return;
 
 	/* Release existing search handle */
-	if (dirp->handle != INVALID_HANDLE_VALUE)
-		FindClose(dirp->handle);
+	FindClose(dirp->handle);
 
 	/* Open new search handle */
 	dirent_first(dirp);
 }
 
 /* Get first directory entry */
-static WIN32_FIND_DATAW *dirent_first(_WDIR *dirp)
+static WIN32_FIND_DATAW *
+dirent_first(_WDIR *dirp)
 {
-	if (!dirp)
-		return NULL;
-
 	/* Open directory and retrieve the first entry */
 	dirp->handle = FindFirstFileExW(
 		dirp->patt, FindExInfoStandard, &dirp->data,
@@ -580,6 +623,7 @@ static WIN32_FIND_DATAW *dirent_first(_WDIR *dirp)
 error:
 	/* Failed to open directory: no directory entry in memory */
 	dirp->cached = 0;
+	dirp->invalid = 1;
 
 	/* Set error code */
 	DWORD errorcode = GetLastError();
@@ -603,8 +647,13 @@ error:
 }
 
 /* Get next directory entry */
-static WIN32_FIND_DATAW *dirent_next(_WDIR *dirp)
+static WIN32_FIND_DATAW *
+dirent_next(_WDIR *dirp)
 {
+	/* Return NULL if seek position was invalid */
+	if (dirp->invalid)
+		return NULL;
+
 	/* Is the next directory entry already in cache? */
 	if (dirp->cached) {
 		/* Yes, a valid directory entry found in memory */
@@ -612,22 +661,33 @@ static WIN32_FIND_DATAW *dirent_next(_WDIR *dirp)
 		return &dirp->data;
 	}
 
-	/* No directory entry in cache */
-	if (dirp->handle == INVALID_HANDLE_VALUE)
-		return NULL;
-
 	/* Read the next directory entry from stream */
-	if (FindNextFileW(dirp->handle, &dirp->data) == FALSE)
-		goto exit_close;
+	if (FindNextFileW(dirp->handle, &dirp->data) == FALSE) {
+		/* End of directory stream */
+		return NULL;
+	}
 
 	/* Success */
 	return &dirp->data;
+}
 
-	/* Failure */
-exit_close:
-	FindClose(dirp->handle);
-	dirp->handle = INVALID_HANDLE_VALUE;
-	return NULL;
+/*
+ * Compute 31-bit hash of file name.
+ *
+ * See djb2 at http://www.cse.yorku.ca/~oz/hash.html
+ */
+static long
+dirent_hash(WIN32_FIND_DATAW *datap)
+{
+	unsigned long hash = 5381;
+	unsigned long c;
+	const wchar_t *p = datap->cFileName;
+	const wchar_t *e = p + MAX_PATH;
+	while (p != e && (c = *p++) != 0) {
+		hash = (hash << 5) + hash + c;
+	}
+
+	return (long) (hash & ((~0UL) >> 1));
 }
 
 /* Open directory stream using plain old C-string */
@@ -666,7 +726,8 @@ exit_failure:
 }
 
 /* Read next directory entry */
-static struct dirent *readdir(DIR *dirp)
+static struct dirent *
+readdir(DIR *dirp)
 {
 	/*
 	 * Read directory entry to buffer.  We can safely ignore the return
@@ -685,7 +746,8 @@ static struct dirent *readdir(DIR *dirp)
  * Returns zero on success.  If the end of directory stream is reached, then
  * sets result to NULL and returns zero.
  */
-static int readdir_r(
+static int
+readdir_r(
 	DIR *dirp, struct dirent *entry, struct dirent **result)
 {
 	/* Read next directory entry */
@@ -721,7 +783,7 @@ static int readdir_r(
 		/* Length of file name excluding zero terminator */
 		entry->d_namlen = n - 1;
 
-		/* File attributes */
+		/* Determine file type */
 		DWORD attr = datap->dwFileAttributes;
 		if ((attr & FILE_ATTRIBUTE_DEVICE) != 0)
 			entry->d_type = DT_CHR;
@@ -730,9 +792,21 @@ static int readdir_r(
 		else
 			entry->d_type = DT_REG;
 
-		/* Reset dummy fields */
+		/* Get offset of next file */
+		datap = dirent_next(dirp->wdirp);
+		if (datap) {
+			/* Compute 31-bit hash of the next directory entry */
+			entry->d_off = dirent_hash(datap);
+
+			/* Push the next directory entry back to cache */
+			dirp->wdirp->cached = 1;
+		} else {
+			/* End of directory stream */
+			entry->d_off = (long) ((~0UL) >> 1);
+		}
+
+		/* Reset fields */
 		entry->d_ino = 0;
-		entry->d_off = 0;
 		entry->d_reclen = sizeof(struct dirent);
 	} else {
 		/*
@@ -756,7 +830,8 @@ static int readdir_r(
 }
 
 /* Close directory stream */
-static int closedir(DIR *dirp)
+static int
+closedir(DIR *dirp)
 {
 	int ok;
 
@@ -778,7 +853,8 @@ exit_failure:
 }
 
 /* Rewind directory stream to beginning */
-static void rewinddir(DIR* dirp)
+static void
+rewinddir(DIR *dirp)
 {
 	if (!dirp)
 		return;
@@ -787,8 +863,111 @@ static void rewinddir(DIR* dirp)
 	_wrewinddir(dirp->wdirp);
 }
 
+/* Get position of directory stream */
+static long
+_wtelldir(_WDIR *dirp)
+{
+	if (!dirp || dirp->handle == INVALID_HANDLE_VALUE) {
+		dirent_set_errno(EBADF);
+		return /*failure*/-1;
+	}
+
+	/* Read next file entry */
+	WIN32_FIND_DATAW *datap = dirent_next(dirp);
+	if (!datap) {
+		/* End of directory stream */
+		return (long) ((~0UL) >> 1);
+	}
+
+	/* Store file entry to cache for readdir() */
+	dirp->cached = 1;
+
+	/* Return the 31-bit hash code to be used as stream position */
+	return dirent_hash(datap);
+}
+
+/* Get position of directory stream */
+static long
+telldir(DIR *dirp)
+{
+	if (!dirp) {
+		dirent_set_errno(EBADF);
+		return -1;
+	}
+
+	return _wtelldir(dirp->wdirp);
+}
+
+/* Seek directory stream to offset */
+static void
+_wseekdir(_WDIR *dirp, long loc)
+{
+	/* Directory must be open */
+	if (!dirp || dirp->handle == INVALID_HANDLE_VALUE)
+		goto exit_failure;
+
+	/* Ensure that seek position is valid */
+	if (loc < 0)
+		goto exit_failure;
+
+	/* Restart directory stream from the beginning */
+	FindClose(dirp->handle);
+	if (!dirent_first(dirp))
+		goto exit_failure;
+
+	/* Reset invalid flag so that we can read from the stream again */
+	dirp->invalid = 0;
+
+	/*
+	 * Read directory entries from the beginning until the hash matches a
+	 * file name.  Be ware that hash code is only 31 bits longs and
+	 * duplicates are possible: the hash code cannot return the position
+	 * with 100.00% accuracy! Moreover, the method is slow for large
+	 * directories.
+	 */
+	long hash;
+	do {
+		/* Read next directory entry */
+		WIN32_FIND_DATAW *datap = dirent_next(dirp);
+		if (!datap) {
+			/*
+			 * End of directory stream was reached before finding
+			 * the requested location.  Perhaps the file in
+			 * question was deleted or moved out of the directory.
+			 */
+			goto exit_failure;
+		}
+
+		/* Does the file name match the hash? */
+		hash = dirent_hash(datap);
+	} while (hash != loc);
+
+	/*
+	 * File name matches the hash!  Push the directory entry back to cache
+	 * from where next readdir() will return it.
+	 */
+	dirp->cached = 1;
+	dirp->invalid = 0;
+	return;
+
+exit_failure:
+	/* Ensure that readdir will return NULL */
+	dirp->invalid = 1;
+}
+
+/* Seek directory stream to offset */
+static void
+seekdir(DIR *dirp, long loc)
+{
+	if (!dirp)
+		return;
+
+	_wseekdir(dirp->wdirp, loc);
+}
+
 /* Scan directory for entries */
-static int scandir(
+static int
+scandir(
 	const char *dirname, struct dirent ***namelist,
 	int (*filter)(const struct dirent*),
 	int (*compare)(const struct dirent**, const struct dirent**))
@@ -849,7 +1028,7 @@ static int scandir(
 	}
 
 exit_failure:
-	/* Release allocated file entries */
+	/* Release allocated entries */
 	for (size_t i = 0; i < size; i++) {
 		free(files[i]);
 	}
@@ -884,19 +1063,22 @@ exit_status:
 }
 
 /* Alphabetical sorting */
-static int alphasort(const struct dirent **a, const struct dirent **b)
+static int
+alphasort(const struct dirent **a, const struct dirent **b)
 {
 	return strcoll((*a)->d_name, (*b)->d_name);
 }
 
 /* Sort versions */
-static int versionsort(const struct dirent **a, const struct dirent **b)
+static int
+versionsort(const struct dirent **a, const struct dirent **b)
 {
 	return strverscmp((*a)->d_name, (*b)->d_name);
 }
 
 /* Compare strings */
-static int strverscmp(const char *a, const char *b)
+static int
+strverscmp(const char *a, const char *b)
 {
 	size_t i = 0;
 	size_t j;
@@ -957,7 +1139,8 @@ static int strverscmp(const char *a, const char *b)
 
 /* Convert multi-byte string to wide character string */
 #if !defined(_MSC_VER) || _MSC_VER < 1400
-static int dirent_mbstowcs_s(
+static int
+dirent_mbstowcs_s(
 	size_t *pReturnValue, wchar_t *wcstr,
 	size_t sizeInWords, const char *mbstr, size_t count)
 {
@@ -985,7 +1168,8 @@ static int dirent_mbstowcs_s(
 
 /* Convert wide-character string to multi-byte string */
 #if !defined(_MSC_VER) || _MSC_VER < 1400
-static int dirent_wcstombs_s(
+static int
+dirent_wcstombs_s(
 	size_t *pReturnValue, char *mbstr,
 	size_t sizeInBytes, const wchar_t *wcstr, size_t count)
 {
@@ -1014,7 +1198,8 @@ static int dirent_wcstombs_s(
 
 /* Set errno variable */
 #if !defined(_MSC_VER) || _MSC_VER < 1400
-static void dirent_set_errno(int error)
+static void
+dirent_set_errno(int error)
 {
 	/* Non-Microsoft compiler or older Microsoft compiler */
 	errno = error;
