@@ -43,14 +43,14 @@ test_telldir(void)
 
 	/* Get position of first file */
 	long pos1 = telldir(dir);
-	printf("pos1: %x\n", pos1);
+	printf("pos1: %lx\n", (long) pos1);
 	assert(pos1 >= 0);
 
 	/* Read first file */
 	struct dirent *ent = readdir(dir);
 	assert(ent != NULL);
 	struct dirent ent1 = *ent;
-	printf("ent1: %s %x\n", ent->d_name, ent->d_off);
+	printf("ent1: %s %lx\n", ent->d_name, (long) ent->d_off);
 
 	/* Seek back to the first position */
 	seekdir(dir, pos1);
@@ -62,52 +62,52 @@ test_telldir(void)
 
 	/* Get position to second file */
 	long pos2 = telldir(dir);
-	printf("pos2: %x\n", pos2);
+	printf("pos2: %lx\n", (long) pos2);
 	assert(pos2 >= 0);
 
 	/* Read second file */
 	ent = readdir(dir);
 	assert(ent != NULL);
 	struct dirent ent2 = *ent;
-	printf("ent2: %s %x\n", ent->d_name, ent->d_off);
+	printf("ent2: %s %lx\n", ent->d_name, (long) ent->d_off);
 
 	/* Get position to third file */
 	long pos3 = telldir(dir);
-	printf("pos3: %x\n", pos3);
+	printf("pos3: %lx\n", (long) pos3);
 	assert(pos3 >= 0);
 
 	/* Read third file */
 	ent = readdir(dir);
 	assert(ent != NULL);
 	struct dirent ent3 = *ent;
-	printf("ent3: %s %x\n", ent->d_name, ent->d_off);
+	printf("ent3: %s %lx\n", ent->d_name, (long) ent->d_off);
 
 	/* Get position to fourth file */
 	long pos4 = telldir(dir);
-	printf("pos4: %x\n", pos4);
+	printf("pos4: %lx\n", (long) pos4);
 	assert(pos4 >= 0);
 
 	/* Read fourth file */
 	ent = readdir(dir);
 	assert(ent != NULL);
 	struct dirent ent4 = *ent;
-	printf("ent4: %s %x\n", ent->d_name, ent->d_off);
+	printf("ent4: %s %lx\n", ent->d_name, (long) ent->d_off);
 
 	/* Get position to fifth file */
 	long pos5 = telldir(dir);
-	printf("pos5: %x\n", pos5);
+	printf("pos5: %lx\n", (long) pos5);
 	assert(pos5 >= 0);
 
 	/* Read fifth file */
 	ent = readdir(dir);
 	assert(ent != NULL);
 	struct dirent ent5 = *ent;
-	printf("ent5: %s %x\n", ent->d_name, ent->d_off);
+	printf("ent5: %s %lx\n", ent->d_name, (long) ent->d_off);
 
 	/* Read position at the end of directory stream */
 	long posx = telldir(dir);
 	assert(posx >= 0);
-	printf("posx: %x\n", posx);
+	printf("posx: %lx\n", (long) posx);
 
 	/* End of directory stream has been reached */
 	ent = readdir(dir);
