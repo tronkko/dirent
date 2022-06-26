@@ -21,7 +21,8 @@
 #undef NDEBUG
 #include <assert.h>
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 #ifdef WIN32
 	wchar_t wpath[MAX_PATH+1];
@@ -37,7 +38,6 @@ int main(int argc, char *argv[])
 	FILE *fp;
 	int counter = 0;
 
-
 	/* Initialize random number generator */
 	srand(((int) time(NULL)) * 257 + ((int) GetCurrentProcessId()));
 
@@ -48,7 +48,6 @@ int main(int argc, char *argv[])
 	} else {
 		setlocale(LC_ALL, "");
 	}
-
 
 	/****** CREATE FILE WITH UNICODE FILE NAME ******/
 
@@ -125,7 +124,6 @@ int main(int argc, char *argv[])
 	ok = CloseHandle(fh);
 	assert(ok);
 
-
 	/****** MAKE SURE THAT UNICODE FILE CAN BE READ BY _WREADDIR ******/
 
 	/* Zero terminate wide-character path and open directory stream */
@@ -201,7 +199,6 @@ int main(int argc, char *argv[])
 	/* Close directory */
 	_wclosedir(wdir);
 
-
 	/****** MAKE SURE THAT UNICODE FILE NAME CAN BE READ BY READDIR *****/
 
 	/* Zero terminate ascii path and open directory stream */
@@ -267,7 +264,6 @@ int main(int argc, char *argv[])
 
 	/* Close directory */
 	closedir(dir);
-
 
 	/****** CREATE FILE WITH UTF-8 ******/
 

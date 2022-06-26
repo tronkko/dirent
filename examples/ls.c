@@ -36,7 +36,8 @@
 static void list_directory(const char *dirname);
 
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 	/* Select default locale */
 	setlocale(LC_ALL, "");
@@ -58,7 +59,8 @@ int main(int argc, char *argv[])
 /*
  * List files and directories within a directory.
  */
-static void list_directory(const char *dirname)
+static void
+list_directory(const char *dirname)
 {
 	/* Open directory stream */
 	DIR *dir = opendir(dirname);

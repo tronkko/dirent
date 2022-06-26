@@ -34,7 +34,6 @@
 /* File name and location of database file */
 #define DB_LOCATION L"locate.db"
 
-
 /* Forward-decl */
 static int db_locate(const wchar_t *pattern);
 static int db_match(const wchar_t *fn, const wchar_t *pattern);
@@ -42,11 +41,11 @@ static void db_open(void);
 static void db_close(void);
 static int db_read(wchar_t *buffer, size_t max);
 
-
 /* Module local variables */
 static FILE *db = NULL;
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 #ifdef WIN32
 	/* Prepare for unicode output */
@@ -85,7 +84,8 @@ int main(int argc, char *argv[])
 }
 
 /* Match pattern against files in locate.db file */
-static int db_locate(const wchar_t *pattern)
+static int
+db_locate(const wchar_t *pattern)
 {
 	int count = 0;
 
@@ -112,7 +112,8 @@ static int db_locate(const wchar_t *pattern)
 }
 
 /* Match pattern against file name */
-static int db_match(const wchar_t *fn, const wchar_t *pattern)
+static int
+db_match(const wchar_t *fn, const wchar_t *pattern)
 {
 	int found = 0;
 
@@ -170,7 +171,8 @@ static int db_match(const wchar_t *fn, const wchar_t *pattern)
  * Read line from locate.db.  This function is same as fgetws() except
  * that new-line at the end of line is not included.
  */
-static int db_read(wchar_t *buffer, size_t max)
+static int
+db_read(wchar_t *buffer, size_t max)
 {
 	int ok = 0;
 
@@ -233,7 +235,8 @@ static int db_read(wchar_t *buffer, size_t max)
 }
 
 /* Open database file locate.db */
-static void db_open(void)
+static void
+db_open(void)
 {
 #ifdef WIN32
 	if (db)
@@ -249,7 +252,8 @@ static void db_open(void)
 }
 
 /* Close database file */
-static void db_close(void)
+static void
+db_close(void)
 {
 	if (!db)
 		return;

@@ -35,8 +35,8 @@
 
 static int find_directory(const char *dirname);
 
-
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 	/* Select default locale */
 	setlocale(LC_ALL, "");
@@ -57,7 +57,8 @@ int main(int argc, char *argv[])
 }
 
 /* Find files and subdirectories recursively */
-static int find_directory(const char *dirname)
+static int
+find_directory(const char *dirname)
 {
 	char buffer[PATH_MAX + 2];
 	char *p = buffer;

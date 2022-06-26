@@ -23,8 +23,8 @@
 
 static void output_file(const char *fn);
 
-
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 	/* Select default locale */
 	setlocale(LC_ALL, "");
@@ -47,7 +47,8 @@ int main(int argc, char *argv[])
 /*
  * Output file to screen
  */
-static void output_file(const char *fn)
+static void
+output_file(const char *fn)
 {
 	/* Open file */
 	FILE *fp = fopen(fn, "r");
