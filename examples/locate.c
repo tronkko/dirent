@@ -1,5 +1,5 @@
 /*
- * A file look-up utility to complement updatedb
+ * Find file name from locatedb database.
  *
  * Compile and run updatedb command first to create locate.db file.  Then,
  * compile this program with Visual Studio and run the program in console with

@@ -1,5 +1,5 @@
 /*
- * An example demonstrating basic file information listing.
+ * List files with date, type and size.
  *
  * Compile this file with Visual Studio and run the produced command in
  * console with a directory name argument.  For example, command

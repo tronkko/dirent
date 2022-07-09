@@ -1,5 +1,5 @@
 /*
- * An example demonstrating wide-character functions
+ * Build database of file and directory names.
  *
  * Compile this file with Visual Studio and run the produced command in
  * console with a directory name argument.  For example, command

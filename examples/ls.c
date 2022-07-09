@@ -1,5 +1,5 @@
 /*
- * An example demonstrating basic directory listing.
+ * List contents of a directory.
  *
  * Compile this file with Visual Studio and run the produced command in
  * console with a directory name argument.  For example, command

@@ -1,5 +1,5 @@
 /*
- * Example program demonstrating the use of scandir function.
+ * List contents of a directory in an alphabetical order.
  *
  * Compile this file with Visual Studio and run the produced command in
  * console with a directory name argument.  For example, command
@@ -87,7 +87,6 @@ list_directory(
 		default:
 			printf("%s*\n", ent->d_name);
 		}
-
 	}
 
 	/* Release file names */
