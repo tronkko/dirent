@@ -94,7 +94,8 @@ list_directory(const char *dirname)
 
 /* Stub for converting arguments to UTF-8 on Windows */
 #ifdef _MSC_VER
-int wmain(int argc, wchar_t *argv[])
+int
+wmain(int argc, wchar_t *argv[])
 {
 	/* Select UTF-8 locale */
 	setlocale(LC_ALL, ".utf8");
@@ -138,7 +139,8 @@ int wmain(int argc, wchar_t *argv[])
 	return errorcode;
 }
 #else
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 	return _main(argc, argv);
 }

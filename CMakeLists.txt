@@ -41,7 +41,7 @@ if(DIRENT_BUILD_TESTS)
     add_executable(updatedb examples/updatedb.c)
     add_executable(scandir examples/scandir.c)
     add_executable(cat examples/cat.c)
-    add_executable(dirls examples/dirls.c)
+    add_executable(dir examples/dir.c)
 
     # Build test programs
     include(CTest)

@@ -11,6 +11,7 @@
 /ls
 /scandir
 /cat
+/dir
 /t-compile
 /t-dirent
 /t-scandir
