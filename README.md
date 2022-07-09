@@ -30,7 +30,7 @@ on Microsoft Windows.
 
 # Example Programs
 
-The installation package contains six example programs:
+The installation package contains example programs:
 
 Program  | Purpose
 -------- | -----------------------------------------------------------------
@@ -38,8 +38,9 @@ ls       | List files in a directory, e.g. ls "c:\Program Files"
 find     | Find files in subdirectories, e.g. find "c:\Program Files\CMake"
 updatedb | Build database of files in a drive, e.g. updatedb c:\
 locate   | Locate a file from database, e.g. locate notepad
-scandir  | Demonstrate scandir() function
-cat      | Print a text file to screen
+scandir  | Printed sorted list of file names in a directory, e.g. scandir .
+du       | Compute disk usage, e.g. du "C:\Program Files"
+cat      | Print a text file to screen, e.g. cat include/dirent.h
 
 In order to build the example programs, first install
 [CMake](https://cmake.org/) to your machine.  Then, open command prompt and
@@ -64,15 +65,12 @@ this README.md file.
 Once CMake is finished, open Visual Studio, load the generated ``dirent.sln``
 file from the build directory and build the whole solution.
 
-Once the build completes, open command prompt and run the example programs ls,
-find, updatedb and locate from the command prompt as
+Once the build completes, open command prompt and cd to the Debug directory to
+run the example programs.  For example:
 
 ```
 cd c:\temp\dirent\Debug
-ls .
-find .
-updatedb c:\
-locate cmd.exe
+.\ls .
 ```
 
 Visual Studio project also contains a solution named ``check`` which can be
@@ -84,12 +82,22 @@ from Visual Studio to run the test programs.
 
 By default, file and directory names in the Dirent API are expressed in the
 currently selected windows codepage.  If you wish to use UTF-8 character
-encoding instead, then replace the main function with \_main function and add
-the following stub after your main function:
+encoding, then replace the main function with \_main function and convert
+wide-character arguments to UTF-8 strings as demonstrated in the snippet
+below.
 
 ```
+/* This is your true main function */
+static int
+_main(int argc, wchar_t *argv[])
+{
+	/* ... */
+}
+
+/* Convert arguments to UTF-8 */
 #ifdef _MSC_VER
-int wmain(int argc, wchar_t *argv[])
+int
+wmain(int argc, wchar_t *argv[])
 {
 	/* Select UTF-8 locale */
 	setlocale(LC_ALL, ".utf8");
@@ -139,10 +147,6 @@ int main(int argc, char *argv[])
 }
 #endif
 ```
-
-The stub converts file names from command line to UTF-8 and allows your
-program to receive file names correctly irrespective of the current windows
-code page.
 
 For more information on UTF-8 support, please see setlocale in Visual Studio
 [C runtime library reference](https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=msvc-160#utf-8-support).
