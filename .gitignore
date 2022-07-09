@@ -12,6 +12,7 @@
 /scandir
 /cat
 /dir
+/du
 /t-compile
 /t-dirent
 /t-scandir
