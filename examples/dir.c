@@ -215,7 +215,7 @@ wmain(int argc, wchar_t *argv[])
 	/* Pass UTF-8 converted arguments to the main program */
 	int errorcode = _main(argc, mbargv);
 
-	/* Release memory UTF-8 arguments */
+	/* Release UTF-8 arguments */
 	for (int i = 0; i < argc; i++) {
 		free(mbargv[i]);
 	}
