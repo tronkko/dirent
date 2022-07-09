@@ -1,23 +1,25 @@
 /*
- * An example demonstrating recursive directory listing.
+ * Compute disk usage of files and sub-directories in bytes.
  *
  * Compile this file with Visual Studio and run the produced command in
  * console with a directory name argument.  For example, command
  *
- *     du c:\temp\test
+ *     du "c:\Program Files"
  *
- * might output something like
+ * might produce listing such as
  *
- *     8383	c:\temp\test/budget.xlsx
- *     11972	c:\temp\test/essay.docx
- *     6188	c:\temp\test/test2.1/
- *     8328	c:\temp\test/test2.2/
- *     22	c:\temp\test/to_do_list.txt
- *     34893	c:\temp\test/
+ *     5204927     7-Zip
+ *     140046882   CCleaner
+ *     83140342    CMake
+ *     2685264     Internet Explorer
+ *     686314712   LibreOffice
+ *     214025459   Mozilla Firefox
+ *     174753900   VideoLAN
  *
- * The du command provided by this file is only an example: the command
- * does not have any fancy options like in Linux.
- *
+ * If you compare this program to a genuine du command in Linux, then be ware
+ * directories themselves consume some space in Linux.  This program, however,
+ * only counts the files and hence the size will always be smaller than that
+ * reported by Linux du.
  *
  * Copyright (C) 1998-2019 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed
@@ -29,188 +31,169 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <locale.h>
 
+static long long list_directory(const char *dirname, int level);
+static int _main(int argc, char *argv[]);
 
-static int list_directory(const char *dirname, const char *sub_dirname,
-	double *total_size, double *sub_dir_size, int dir_count);
-
-
-int main(int argc, char *argv[])
+static int
+_main(int argc, char *argv[])
 {
-	printf("\n");
-
-	/* Select default locale */
-	setlocale(LC_ALL, "");
-
-	/* Keep track of where we are at */
-	int dir_count = 0;
-
-	/*
-	 * Keep track of the size of everything in the directory or directories
-	 * given in the command line arguments
-	 */
-	double t = 0;
-	double *total_size = &t;
-
-	/*
-	 * Keep track of the size of everything in each subdirectory of the
-	 * director or directories given in the command line arguments
-	 */
-	double s = 0;
-	double *sub_dir_size = &s;
-	
 	/* For each directory in command line */
 	int i = 1;
 	while (i < argc) {
-		if (!list_directory(argv[i], argv[i], total_size, sub_dir_size,
-			dir_count))
-			exit(EXIT_FAILURE);
-
-		/*
-		 * Before going to the next directory argument (if any), print the
-		 * directory name and the total size at the end of the list
-		 */
-		printf("%15.0f\t\t%s/\n\n", *total_size, argv[i]);
-
-		/*
-		 * Reset the top directory and subdirectory total sizes in preparation
-		 * for the next directory argument
-		 */
-		*sub_dir_size = 0;
-		*total_size = 0;
-
+		list_directory(argv[i], 0);
 		i++;
 	}
 
 	/* List current working directory if no arguments on command line */
 	if (argc == 1)
-		list_directory(".", ".", total_size, sub_dir_size, dir_count);
+		list_directory(".", 0);
 
 	return EXIT_SUCCESS;
 }
 
 /* Find files and subdirectories recursively; list their sizes */
-static int list_directory(const char *dirname, const char *sub_dirname,
-	double *total_size, double *sub_dir_size, int dir_count)
+static long long
+list_directory(const char *dirname, int level)
 {
-	dir_count = 0;
-	struct stat stbuf;
-	struct dirent *ent;
-
 	char buffer[PATH_MAX + 2];
 	char *p = buffer;
 	char *end = &buffer[PATH_MAX];
 	
 	/* Copy directory name to buffer */
-	const char *src = sub_dirname;
-
+	const char *src = dirname;
 	while (p < end && *src != '\0') {
 		*p++ = *src++;
 	}
 	*p = '\0';
 
-	/* Open directory stream */
-	DIR *dir = opendir(sub_dirname);
-	if (!dir) {
-		/* Could not open directory */
-		fprintf(stderr,
-			"\t\t\tCannot open %s (%s)\n", sub_dirname, strerror(errno));
+	/* Get final character of directory name */
+	char c;
+	if (buffer < p)
+		c = p[-1];
+	else
+		c = ':';
 
-		/* Failure */
-		return 0;
+	/* Append directory separator if not already there */
+	if (c != ':' && c != '/' && c != '\\')
+		*p++ = '/';
+
+	/* Open directory stream */
+	DIR *dir = opendir(dirname);
+	if (!dir) {
+		fprintf(stderr,
+			"Cannot open %s (%s)\n", dirname, strerror(errno));
+		return 0LL;
 	}
 
-	/* Print all files and directories within the directory */
+	/* Compute total disk usage of all files and directories */
+	struct stat stbuf;
+	struct dirent *ent;
+	long long total = 0;
 	while ((ent = readdir(dir)) != NULL) {
-		char *q = p;
-		char c;
-		
-		/* Get final character of directory name */
-		if (buffer < q)
-			c = q[-1];
-		else
-			c = ':';
+		/* Skip pseudo directories . and .. */
+		if (strcmp(ent->d_name, ".") == 0
+			|| strcmp(ent->d_name, "..") == 0)
+			continue;
 
-		/* Append directory separator if not already there */
-		if (c != ':' && c != '/' && c != '\\')
-			*q++ = '/';
+		/* Skip links as they consume no space */
+		if (ent->d_type == DT_LNK)
+			continue;
 
-		/* Append file name */
+		/* Skip device entries */
+		if (ent->d_type != DT_REG && ent->d_type != DT_DIR)
+			continue;
+
+		/* Append file name to buffer */
 		src = ent->d_name;
+		char *q = p;
 		while (q < end && *src != '\0') {
 			*q++ = *src++;
 		}
 		*q = '\0';
 
-		/* Decide what to do with the directory entry */
-		switch (ent->d_type) {
-
-			case DT_LNK:
-
-			case DT_REG:
-
-				if (stat(buffer, &stbuf) == -1) {
-					printf("\t\t\t%s %s\n", "Can't access", buffer);
-				}
-				else {
-					/*
-					 * If we are in the top directory and not in a subdirectory.
-					 * We don't want to list every file and directory, just the files
-					 * and directories inside our top directory
-					 */
-					if (strcmp(dirname, sub_dirname) == 0) {
-						/* Output file name and file size with directory */
-						printf("%15d\t\t%s\n", stbuf.st_size, buffer);
-					}
-					*sub_dir_size += stbuf.st_size;
-					*total_size += stbuf.st_size;
-					dir_count = 0;
-				}
-
-				break;
-
-			case DT_DIR:
-				/* Scan sub-directory recursively */
-				if (strcmp(ent->d_name, ".") != 0
-					&&  strcmp(ent->d_name, "..") != 0) {
-					dir_count++;
-
-					/*
-		 			 * If we are back in the top directory and not in a subdirectory
-		 			 * We need to reset the subdirectory size totals
-		  			 */
-					if (strcmp(dirname, sub_dirname) == 0) {
-						*sub_dir_size = 0;
-					}
-
-					list_directory(dirname, buffer, total_size, sub_dir_size,
-						dir_count);
-				}
-				break;
-
-			default:
-				/* Ignore device entries */
-				/* NOP */;
+		/* Add file size */
+		long long size = 0;
+		if (ent->d_type == DT_REG) {
+			if (stat(buffer, &stbuf) == /*Error*/-1) {
+				fprintf(stderr, "Cannot access %s\n", buffer);
+				continue;
+			}
+			size += (long long) stbuf.st_size;
 		}
 
-		/*
-		 * If we are in the top directory and not in a subdirectory.
-		 * We don't want to list every file and folder, just the files
-		 * and directories inside our top directory
-		 */
-		if (strcmp(dirname, sub_dirname) == 0 && dir_count > 0) {
-			/* Output file name and file size with directory */
-			printf("%15.0f\t\t%s/\n", *sub_dir_size, buffer);
-	
-			/* Reset the running total for our sub directory size */
-			*sub_dir_size = 0;
-		}
+		/* Compute size of subdirectories recursively */
+		if (ent->d_type == DT_DIR)
+			size += list_directory(buffer, level + 1);
+
+		/* Update total size of directory */
+		total += size;
+
+		/* Output file/directory size in bytes */
+		if (level == 0)
+			printf("%-10lld  %s\n", size, ent->d_name);
 	}
 
 	closedir(dir);
 
-	/* Success */
-	return 1;
+	/* Return total size of directory */
+	return total;
 }
+
+/* Stub for converting arguments to UTF-8 on Windows */
+#ifdef _MSC_VER
+int
+wmain(int argc, wchar_t *argv[])
+{
+	/* Select UTF-8 locale */
+	setlocale(LC_ALL, ".utf8");
+	SetConsoleCP(CP_UTF8);
+	SetConsoleOutputCP(CP_UTF8);
+
+	/* Allocate memory for multi-byte argv table */
+	char **mbargv;
+	mbargv = (char**) malloc(argc * sizeof(char*));
+	if (!mbargv) {
+		puts("Out of memory");
+		exit(3);
+	}
+
+	/* Convert each argument in argv to UTF-8 */
+	for (int i = 0; i < argc; i++) {
+		size_t n;
+		wcstombs_s(&n, NULL, 0, argv[i], 0);
+
+		/* Allocate room for ith argument */
+		mbargv[i] = (char*) malloc(n + 1);
+		if (!mbargv[i]) {
+			puts("Out of memory");
+			exit(3);
+		}
+
+		/* Convert ith argument to utf-8 */
+		wcstombs_s(NULL, mbargv[i], n + 1, argv[i], n);
+	}
+
+	/* Pass UTF-8 converted arguments to the main program */
+	int errorcode = _main(argc, mbargv);
+
+	/* Release UTF-8 arguments */
+	for (int i = 0; i < argc; i++) {
+		free(mbargv[i]);
+	}
+
+	/* Release the argument table */
+	free(mbargv);
+	return errorcode;
+}
+#else
+int
+main(int argc, char *argv[])
+{
+	return _main(argc, argv);
+}
+#endif
+
