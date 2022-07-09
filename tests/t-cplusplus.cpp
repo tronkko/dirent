@@ -17,7 +17,8 @@ static int only_readme(const struct dirent *entry);
 static void test_retrieval(void);
 static void test_scan(void);
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 	(void) argc;
 	(void) argv;
@@ -30,7 +31,8 @@ int main(int argc, char *argv[])
 }
 
 /* Test basic directory retrieval */
-static void test_retrieval(void)
+static void
+test_retrieval(void)
 {
 	/* Open directory */
 	DIR *dir = opendir("tests/1");
@@ -118,7 +120,8 @@ static void test_retrieval(void)
 }
 
 /* Text basic scan with simple filter function */
-static void test_scan(void)
+static void
+test_scan(void)
 {
 	struct dirent **files;
 
@@ -137,7 +140,8 @@ static void test_scan(void)
 }
 
 /* Only pass README.txt file */
-static int only_readme(const struct dirent *entry)
+static int
+only_readme(const struct dirent *entry)
 {
 	int pass;
 

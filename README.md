@@ -141,7 +141,8 @@ wmain(int argc, wchar_t *argv[])
 	return errorcode;
 }
 #else
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 	return _main(argc, argv);
 }
