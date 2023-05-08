@@ -902,8 +902,11 @@ telldir(DIR *dirp)
 static void
 _wseekdir(_WDIR *dirp, long loc)
 {
+	if (!dirp)
+		return;
+	
 	/* Directory must be open */
-	if (!dirp || dirp->handle == INVALID_HANDLE_VALUE)
+	if (dirp->handle == INVALID_HANDLE_VALUE)
 		goto exit_failure;
 
 	/* Ensure that seek position is valid */
