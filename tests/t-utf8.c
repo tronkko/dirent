@@ -93,7 +93,7 @@ main(int argc, char *argv[])
 		/* Creation disposition */ CREATE_NEW,
 		/* Attributes */ FILE_ATTRIBUTE_NORMAL,
 		/* Template files */ NULL
-		);
+	);
 	assert(fh != INVALID_HANDLE_VALUE);
 
 	/* Write some data to file */
@@ -103,7 +103,7 @@ main(int argc, char *argv[])
 		/* Number of bytes to write */ 4,
 		/* Number of bytes written */ NULL,
 		/* Overlapped */ NULL
-		);
+	);
 	assert(ok);
 
 	/* Close file */
