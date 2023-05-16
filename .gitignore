@@ -1,3 +1,4 @@
+/.vscode
 /CMakeCache.txt
 /CMakeFiles
 /CTestTestfile.cmake
@@ -21,7 +22,13 @@
 /t-strverscmp
 /t-telldir
 /t-utf8
+/t-symlink
 /updatedb
+/build
 /*.filters
 /*.vcxproj
 /*.dir
+
+# Some filesystems do not support symlinks, therefore
+# it is a bad idea to include symlinks in a git source tree
+/tests/1/link_*
