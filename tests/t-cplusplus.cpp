@@ -106,7 +106,11 @@ test_retrieval(void)
 			assert(_D_ALLOC_NAMLEN(ent) > 3);
 #endif
 			found += 8;
-		} else if (ent->d_type != DT_LNK) {
+#ifdef _DIRENT_HAVE_D_TYPE
+		} else if (ent->d_type != DT_LNK || ent->d_name[0] != 'l') {
+#else
+		} else if (ent->d_name[0] != 'l') {
+#endif
 			/* Other file. Symlinks created by t-symlink are ignored. */
 			cerr << "Unexpected file " << ent->d_name << endl;
 			abort();
