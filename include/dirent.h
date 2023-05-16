@@ -99,9 +99,13 @@
 #	define S_IFBLK 0
 #endif
 
-/* Link */
+/* Link 
+ * S_IFLNK is not defined in Windows's `stat.h`, so we define it here.
+ * In Windows's `stat.h`, file type macros (S_IFDIR, S_IFREG...) are defined
+ * bitmasks, except that they are NOT on Linux. So long as S_* & ~S_IFMT == 0,
+ * as is the case in Linux, the S_IS*(mode) macros works fine. */
 #if !defined(S_IFLNK)
-#	define S_IFLNK 0
+#	define S_IFLNK (S_IFMT & 0XCCCCCCCC)
 #endif
 
 /* Socket */
@@ -527,6 +531,12 @@ _wreaddir_r(
 	DWORD attr = datap->dwFileAttributes;
 	if ((attr & FILE_ATTRIBUTE_DEVICE) != 0)
 		entry->d_type = DT_CHR;
+#ifdef FILE_ATTRIBUTE_REPARSE_POINT
+	/* A Windows link to directory is both symlink (reparse point) and
+	 * directory. Symlink takes precedence, just as Linux does. */
+	else if ((attr & FILE_ATTRIBUTE_REPARSE_POINT))
+		entry->d_type = DT_LNK;
+#endif
 	else if ((attr & FILE_ATTRIBUTE_DIRECTORY) != 0)
 		entry->d_type = DT_DIR;
 	else
@@ -787,6 +797,12 @@ readdir_r(
 		DWORD attr = datap->dwFileAttributes;
 		if ((attr & FILE_ATTRIBUTE_DEVICE) != 0)
 			entry->d_type = DT_CHR;
+#ifdef FILE_ATTRIBUTE_REPARSE_POINT
+		/* A Windows link to directory is both symlink (reparse point) and
+		 * directory. Symlink takes precedence, just as Linux does. */
+		else if ((attr & FILE_ATTRIBUTE_REPARSE_POINT))
+			entry->d_type = DT_LNK;
+#endif
 		else if ((attr & FILE_ATTRIBUTE_DIRECTORY) != 0)
 			entry->d_type = DT_DIR;
 		else
