@@ -99,13 +99,12 @@
 #	define S_IFBLK 0
 #endif
 
-/* Link 
- * S_IFLNK is not defined in Windows's `stat.h`, so we define it here.
- * In Windows's `stat.h`, file type macros (S_IFDIR, S_IFREG...) are defined
- * bitmasks, except that they are NOT on Linux. So long as S_* & ~S_IFMT == 0,
- * as is the case in Linux, the S_IS*(mode) macros works fine. */
+/*
+ * Symbolic link.  Be ware that S_IFLNK value and S_ISLNK() macro are only
+ * usable with dirent - they do not work with stat() function call!
+ */
 #if !defined(S_IFLNK)
-#	define S_IFLNK (S_IFMT & 0XCCCCCCCC)
+#	define S_IFLNK (_S_IFDIR | _S_IFREG)
 #endif
 
 /* Socket */
@@ -128,6 +127,11 @@
 #	define S_IXUSR 0
 #endif
 
+/* User full permissions */
+#if !defined(S_IRWXU)
+#	define S_IRWXU (S_IRUSR | S_IWUSR | S_IXUSR)
+#endif
+
 /* Read group permission */
 #if !defined(S_IRGRP)
 #	define S_IRGRP 0
@@ -143,6 +147,11 @@
 #	define S_IXGRP 0
 #endif
 
+/* Group full permissions */
+#if !defined(S_IRWXG)
+#	define S_IRWXG (S_IRGRP | S_IWGRP | S_IXGRP)
+#endif
+
 /* Read others permission */
 #if !defined(S_IROTH)
 #	define S_IROTH 0
@@ -156,6 +165,11 @@
 /* Execute others permission */
 #if !defined(S_IXOTH)
 #	define S_IXOTH 0
+#endif
+
+/* Other full permissions */
+#if !defined(S_IRWXO)
+#	define S_IRWXO (S_IROTH | S_IWOTH | S_IXOTH)
 #endif
 
 /* Maximum length of file name */
@@ -184,10 +198,10 @@
 #define DTTOIF(type) (type)
 
 /*
- * File type macros.  Note that block devices, sockets and links cannot be
- * distinguished on Windows and the macros S_ISBLK, S_ISSOCK and S_ISLNK are
- * only defined for compatibility.  These macros should always return false
- * on Windows.
+ * File type macros.  Note that block devices and sockets cannot be
+ * distinguished on Windows, and the macros S_ISBLK and S_ISSOCK are only
+ * defined for compatibility.  These macros should always return false on
+ * Windows.
  */
 #if !defined(S_ISFIFO)
 #	define S_ISFIFO(mode) (((mode) & S_IFMT) == S_IFIFO)
@@ -531,12 +545,8 @@ _wreaddir_r(
 	DWORD attr = datap->dwFileAttributes;
 	if ((attr & FILE_ATTRIBUTE_DEVICE) != 0)
 		entry->d_type = DT_CHR;
-#ifdef FILE_ATTRIBUTE_REPARSE_POINT
-	/* A Windows link to directory is both symlink (reparse point) and
-	 * directory. Symlink takes precedence, just as Linux does. */
-	else if ((attr & FILE_ATTRIBUTE_REPARSE_POINT))
+	else if ((attr & FILE_ATTRIBUTE_REPARSE_POINT) != 0)
 		entry->d_type = DT_LNK;
-#endif
 	else if ((attr & FILE_ATTRIBUTE_DIRECTORY) != 0)
 		entry->d_type = DT_DIR;
 	else
@@ -797,12 +807,8 @@ readdir_r(
 		DWORD attr = datap->dwFileAttributes;
 		if ((attr & FILE_ATTRIBUTE_DEVICE) != 0)
 			entry->d_type = DT_CHR;
-#ifdef FILE_ATTRIBUTE_REPARSE_POINT
-		/* A Windows link to directory is both symlink (reparse point) and
-		 * directory. Symlink takes precedence, just as Linux does. */
-		else if ((attr & FILE_ATTRIBUTE_REPARSE_POINT))
+		else if ((attr & FILE_ATTRIBUTE_REPARSE_POINT) != 0)
 			entry->d_type = DT_LNK;
-#endif
 		else if ((attr & FILE_ATTRIBUTE_DIRECTORY) != 0)
 			entry->d_type = DT_DIR;
 		else

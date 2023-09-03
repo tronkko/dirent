@@ -13,17 +13,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include <dirent.h>
 #include <ctype.h>
 
-int
-main(
-	int argc, char *argv[])
-{
-	(void) argc;
-	(void) argv;
+#undef NDEBUG
+#include <assert.h>
 
+static void test_compare(void);
+static void test_performance(void);
+static void initialize(void);
+static void cleanup(void);
+
+int
+main(void)
+{
+	initialize();
+
+	test_compare();
+	test_performance();
+
+	cleanup();
+	return EXIT_SUCCESS;
+}
+
+static void
+test_compare(void)
+{
 	/* Strings without digits are compared as in strcmp() */
 	assert(strverscmp("", "") == 0);
 	assert(strverscmp("abc", "abc") == 0);
@@ -165,42 +180,52 @@ main(
 	assert(strverscmp("1", "10") < 0);
 
 	assert(strverscmp("9", "10") < 0);
+}
 
-	/* Compare speed */
-	{
+static void
+test_performance(void)
+{
 #define LENGTH 100
 #define REPEAT 1000000
-		char a[LENGTH+1];
-		char b[LENGTH+1];
-		size_t i;
-		size_t j;
-		char letters[] = "01234567890123456789abdefghjkpqrtwxyz-/.";
-		size_t n = strlen(letters);
+	char a[LENGTH+1];
+	char b[LENGTH+1];
+	size_t i;
+	size_t j;
+	char letters[] = "01234567890123456789abdefghjkpqrtwxyz-/.";
+	size_t n = strlen(letters);
 
-		/* Repeat test */
-		for(i = 0; i < REPEAT; i++) {
-			int diff1;
-			int diff2;
+	/* Repeat test */
+	for(i = 0; i < REPEAT; i++) {
+		int diff1;
+		int diff2;
 
-			/* Generate two random strings of LENGTH characters */
-			for(j = 0; j < LENGTH; j++) {
-				a[j] = letters[rand() % n];
-				b[j] = letters[rand() % n];
-			}
-			a[j] = '\0';
-			b[j] = '\0';
-
-			/* Compare strings in both directions */
-			diff1 = strverscmp(a, b);
-			diff2 = strverscmp(b, a);
-
-			/* Must give identical result in both directions */
-			assert((diff1 < 0 && diff2 > 0)
-				|| (diff1 == 0 && diff2 == 0)
-				|| (diff1 > 0 && diff2 < 0));
+		/* Generate two random strings of LENGTH characters */
+		for(j = 0; j < LENGTH; j++) {
+			a[j] = letters[rand() % n];
+			b[j] = letters[rand() % n];
 		}
-	}
+		a[j] = '\0';
+		b[j] = '\0';
 
+		/* Compare strings in both directions */
+		diff1 = strverscmp(a, b);
+		diff2 = strverscmp(b, a);
+
+		/* Must give identical result in both directions */
+		assert((diff1 < 0 && diff2 > 0)
+			|| (diff1 == 0 && diff2 == 0)
+			|| (diff1 > 0 && diff2 < 0));
+	}
+}
+
+static void
+initialize(void)
+{
+	/*NOP*/;
+}
+
+static void
+cleanup(void)
+{
 	printf("OK\n");
-	return EXIT_SUCCESS;
 }

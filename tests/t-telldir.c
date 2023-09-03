@@ -14,21 +14,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
-#include <errno.h>
 
 #undef NDEBUG
 #include <assert.h>
 
 static void test_telldir(void);
+static void initialize(void);
+static void cleanup(void);
 
 int
-main(int argc, char *argv[])
+main(void)
 {
-	(void) argc;
-	(void) argv;
+	initialize();
 
 	test_telldir();
 
+	cleanup();
 	return EXIT_SUCCESS;
 }
 
@@ -163,3 +164,14 @@ test_telldir(void)
 	assert(ent == NULL);
 }
 
+static void
+initialize(void)
+{
+	/*NOP*/;
+}
+
+static void
+cleanup(void)
+{
+	printf("OK\n");
+}

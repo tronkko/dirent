@@ -21,30 +21,32 @@
 #undef NDEBUG
 #include <assert.h>
 
+static void test_open(void);
+static void initialize(void);
+static void cleanup(void);
+
 int
-main(int argc, char *argv[])
+main(void)
+{
+	initialize();
+
+	test_open();
+
+	cleanup();
+	return EXIT_SUCCESS;
+}
+
+static void
+test_open(void)
 {
 #ifdef WIN32
-	/*
-	 * Select UTF-8 locale.  This will change the way how C runtime
-	 * functions such as fopen() and mkdir() handle character strings.
-	 * For more information, please see:
-	 * https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=msvc-160#utf-8-support
-	 */
-	setlocale(LC_ALL, "LC_CTYPE=.utf8");
-
-	/* Initialize random number generator */
-	srand(((int) time(NULL)) * 257 + ((int) GetCurrentProcessId()));
-
 	/* Get path to temporary directory */
 	wchar_t wpath[MAX_PATH+1];
 	DWORD i = GetTempPathW(MAX_PATH, wpath);
 	assert(i > 0);
-
-	/* Ensure that path name ends in directory separator */
 	assert(wpath[i - 1] == '\\');
 
-	/* Append random prefix */
+	/* Append random directory name */
 	DWORD k;
 	for (k = 0; k < 8; k++) {
 		/* Generate random character */
@@ -229,10 +231,32 @@ main(int argc, char *argv[])
 
 	/* Close directory */
 	closedir(dir);
-#else
-	/* Linux */
-	(void) argc;
-	(void) argv;
 #endif
-	return EXIT_SUCCESS;
+}
+
+static void
+initialize(void)
+{
+#ifdef WIN32
+	/*
+	 * Select UTF-8 locale.  This will change the way how C runtime
+	 * functions such as fopen() and mkdir() handle character strings.
+	 * For more information, please see:
+	 * https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=msvc-160#utf-8-support
+	 */
+	setlocale(LC_ALL, "LC_CTYPE=.utf8");
+
+	/* Initialize random number generator */
+	srand(((int) time(NULL)) * 257 + ((int) GetCurrentProcessId()));
+#else
+	/* This test is not available in UNIX/Linux */
+	fprintf(stderr, "Skipped\n");
+	exit(/*Skip*/ 77);
+#endif
+}
+
+static void
+cleanup(void)
+{
+	printf("OK\n");
 }

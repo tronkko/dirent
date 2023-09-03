@@ -16,17 +16,18 @@ using namespace std;
 static int only_readme(const struct dirent *entry);
 static void test_retrieval(void);
 static void test_scan(void);
+static void initialize(void);
+static void cleanup(void);
 
 int
-main(int argc, char *argv[])
+main(void)
 {
-	(void) argc;
-	(void) argv;
+	initialize();
 
 	test_retrieval();
 	test_scan();
 
-	cout << "OK" << endl;
+	cleanup();
 	return EXIT_SUCCESS;
 }
 
@@ -106,12 +107,8 @@ test_retrieval(void)
 			assert(_D_ALLOC_NAMLEN(ent) > 3);
 #endif
 			found += 8;
-#ifdef _DIRENT_HAVE_D_TYPE
-		} else if (ent->d_type != DT_LNK || ent->d_name[0] != 'l') {
-#else
-		} else if (ent->d_name[0] != 'l') {
-#endif
-			/* Other file. Symlinks created by t-symlink are ignored. */
+		} else {
+			/* Other file */
 			cerr << "Unexpected file " << ent->d_name << endl;
 			abort();
 		}
@@ -156,4 +153,16 @@ only_readme(const struct dirent *entry)
 	}
 
 	return pass;
+}
+
+static void
+initialize(void)
+{
+	/*NOP*/;
+}
+
+static void
+cleanup(void)
+{
+	cout << "OK" << endl;
 }

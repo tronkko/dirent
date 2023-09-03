@@ -32,14 +32,14 @@ static void test_chdir(void);
 static void test_filename(void);
 static void test_readdir(void);
 static void test_wreaddir(void);
+static void initialize(void);
+static void cleanup(void);
 
 int
-main(int argc, char *argv[])
+main(void)
 {
-	(void) argc;
-	(void) argv;
+	initialize();
 
-	/* Execute tests */
 	test_macros();
 	test_retrieval();
 	test_nonexistent();
@@ -51,7 +51,7 @@ main(int argc, char *argv[])
 	test_readdir();
 	test_wreaddir();
 
-	printf("OK\n");
+	cleanup();
 	return EXIT_SUCCESS;
 }
 
@@ -150,12 +150,8 @@ test_retrieval(void)
 			assert(_D_ALLOC_NAMLEN(ent) > 3);
 #endif
 			found += 8;
-#ifdef _DIRENT_HAVE_D_TYPE
-		} else if (ent->d_type != DT_LNK || ent->d_name[0] != 'l') {
-#else
-		} else if (ent->d_name[0] != 'l') {
-#endif
-			/* Other file. Symlinks created by t-symlink are ignored. */
+		} else {
+			/* Other file */
 			fprintf(stderr, "Unexpected file %s\n", ent->d_name);
 			abort();
 		}
@@ -219,12 +215,8 @@ test_rewind(void)
 		} else if (strcmp(ent->d_name, "dir") == 0) {
 			/* Just a directory */
 			found += 8;
-#ifdef _DIRENT_HAVE_D_TYPE
-		} else if (ent->d_type != DT_LNK || ent->d_name[0] != 'l') {
-#else
-		} else if (ent->d_name[0] != 'l') {
-#endif
-			/* Other file. Symlinks created by t-symlink are ignored. */
+		} else {
+			/* Other file */
 			fprintf(stderr, "Unexpected file %s\n", ent->d_name);
 			abort();
 		}
@@ -252,12 +244,8 @@ test_rewind(void)
 		} else if (strcmp(ent->d_name, "dir") == 0) {
 			/* Just a directory */
 			found += 8;
-#ifdef _DIRENT_HAVE_D_TYPE
-		} else if (ent->d_type != DT_LNK || ent->d_name[0] != 'l') {
-#else
-		} else if (ent->d_name[0] != 'l') {
-#endif
-			/* Other file. Symlinks created by t-symlink are ignored. */
+		} else {
+			/* Other file */
 			fprintf(stderr, "Unexpected file %s\n", ent->d_name);
 			abort();
 		}
@@ -294,12 +282,8 @@ test_chdir(void)
 		} else if (strcmp(ent->d_name, "dir") == 0) {
 			/* Just a directory */
 			found += 8;
-#ifdef _DIRENT_HAVE_D_TYPE
-		} else if (ent->d_type != DT_LNK || ent->d_name[0] != 'l') {
-#else
-		} else if (ent->d_name[0] != 'l') {
-#endif
-			/* Other file. Symlinks created by t-symlink are ignored. */
+		} else {
+			/* Other file */
 			fprintf(stderr, "Unexpected file %s\n", ent->d_name);
 			abort();
 		}
@@ -332,12 +316,8 @@ test_chdir(void)
 		} else if (strcmp(ent->d_name, "dir") == 0) {
 			/* Just a directory */
 			found += 8;
-#ifdef _DIRENT_HAVE_D_TYPE
-		} else if (ent->d_type != DT_LNK || ent->d_name[0] != 'l') {
-#else
-		} else if (ent->d_name[0] != 'l') {
-#endif
-			/* Other file. Symlinks created by t-symlink are ignored. */
+		} else {
+			/* Other file */
 			fprintf(stderr, "Unexpected file %s\n", ent->d_name);
 			abort();
 		}
@@ -436,9 +416,9 @@ test_readdir(void)
 	size_t n = 0;
 	while (n < 10 && readdir_r(dir, &ent[n], &entry) == /*OK*/0 && entry != NULL)
 		n++;
-	/* Make sure that we got all the files from directory, 
-	 * with or without the two symlinks created by `t-symlink` */
-	assert(n >= 4 && n <= 6);
+
+	/* Make sure that we got all the files from directory */
+	assert(n == 4);
 
 	/* Check entries in memory */
 	int found = 0;
@@ -506,12 +486,8 @@ test_readdir(void)
 			assert(_D_ALLOC_NAMLEN(entry) > 3);
 #endif
 			found += 8;
-#ifdef _DIRENT_HAVE_D_TYPE
-		} else if (entry->d_type != DT_LNK || entry->d_name[0] != 'l') {
-#else
-		} else if (entry->d_name[0] != 'l') {
-#endif
-			/* Other file. Symlinks created by t-symlink are ignored. */
+		} else {
+			/* Other file */
 			fprintf(stderr, "Unexpected file %s\n", entry->d_name);
 			abort();
 		}
@@ -543,9 +519,9 @@ test_wreaddir(void)
 	size_t n = 0;
 	while (n < 10 && _wreaddir_r(dir, &ent[n], &entry) == /*OK*/0 && entry != NULL)
 		n++;
-	/* Make sure that we got all the files from directory, 
-	 * with or without the two symlinks created by `t-symlink` */
-	assert(n >= 4 && n <= 6);
+
+	/* Make sure that we got all the files from directory */
+	assert(n == 4);
 
 	/* Check entries in memory */
 	int found = 0;
@@ -613,12 +589,8 @@ test_wreaddir(void)
 			assert(_D_ALLOC_NAMLEN(entry) > 3);
 #endif
 			found += 8;
-#ifdef _DIRENT_HAVE_D_TYPE
-		} else if (entry->d_type != DT_LNK || entry->d_name[0] != 'l') {
-#else
-		} else if (entry->d_name[0] != 'l') {
-#endif
-			/* Other file. Symlinks created by t-symlink are ignored. */
+		} else {
+			/* Other file */
 			fprintf(stderr, "Unexpected file\n");
 			abort();
 		}
@@ -629,4 +601,16 @@ test_wreaddir(void)
 
 	_wclosedir(dir);
 #endif
+}
+
+static void
+initialize(void)
+{
+	/*NOP*/;
+}
+
+static void
+cleanup(void)
+{
+	printf("OK\n");
 }

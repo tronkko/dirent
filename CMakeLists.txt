@@ -51,6 +51,7 @@ if(DIRENT_BUILD_TESTS)
         add_executable(${TEST_NAME} EXCLUDE_FROM_ALL ${ARGN})
         add_test(NAME ${TEST_NAME} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND $<TARGET_FILE:${TEST_NAME}>)
         add_dependencies(check ${TEST_NAME})
+        set_property(TEST ${TEST_NAME} PROPERTY SKIP_RETURN_CODE 77)
     endfunction(add_test_executable)
 
     add_test_executable(t-compile tests/t-compile.c)
