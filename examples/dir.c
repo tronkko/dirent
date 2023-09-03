@@ -82,9 +82,6 @@ list_directory(const char* dirname)
 	if (c != ':' && c != '/' && c != '\\')
 		*p++ = '/';
 
-	/* Print directory name to screen */
-	printf("Directory of %s\n\n", dirname);
-
 	/* Open directory stream */
 	DIR *dir = opendir(dirname);
 	if (!dir) {
@@ -93,6 +90,9 @@ list_directory(const char* dirname)
 			"Cannot open %s (%s)\n", dirname, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
+
+	/* Print directory name to screen */
+	printf("Directory of %s\n\n", dirname);
 
 	/* Loop through file names */
 	int filecount = 0;
@@ -231,4 +231,3 @@ main(int argc, char *argv[])
 	return _main(argc, argv);
 }
 #endif
-
