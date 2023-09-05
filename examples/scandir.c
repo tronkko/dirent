@@ -1,20 +1,21 @@
 /*
- * List contents of a directory in an alphabetical order.
+ * Find files with a pattern.
  *
  * Compile this file with Visual Studio and run the produced command in
- * console with a directory name argument.  For example, command
+ * console with a directory name / pattern argument.  For example, command
  *
- *     scandir "c:\Program Files"
+ *     scandir "examples/*.c"
  *
  * might output something like
  *
- *     ./
- *     ../
- *     7-Zip/
- *     Internet Explorer/
- *     Microsoft Visual Studio 9.0/
- *     Microsoft.NET/
- *     Mozilla Firefox/
+ *     cat.c
+ *     dir.c
+ *     du.c
+ *     find.c
+ *     locate.c
+ *     ls.c
+ *     scandir.c
+ *     updatedb.c
  *
  * Copyright (C) 1998-2019 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed
@@ -28,41 +29,98 @@
 #include <dirent.h>
 #include <errno.h>
 #include <locale.h>
+#include <sys/stat.h>
 
-static void list_directory(const char *dirname);
+static int scan(const char *dirname);
+static int _scan(const char *dirname, const char *pattern);
+static int filter(const struct dirent *entry);
+static int match(const char *name, const char *patt);
 static int _main(int argc, char *argv[]);
+
+static const char *filter_pattern = NULL;
 
 static int
 _main(int argc, char *argv[])
 {
-	/* For each directory in command line */
+	/* For each argument in command line */
 	int i = 1;
 	while (i < argc) {
-		list_directory(argv[i]);
+		if (!scan(argv[i])) {
+			perror("Cannot open directory");
+			return EXIT_FAILURE;
+		}
 		i++;
 	}
 
 	/* List current working directory if no arguments on command line */
-	if (argc == 1)
-		list_directory(".");
+	if (argc == 1) {
+		if (!scan(".")) {
+			perror("Cannot open directory");
+			return EXIT_FAILURE;
+		}
+	}
 
 	return EXIT_SUCCESS;
 }
 
 /*
- * List files and directories within a directory.
+ * Scan files and directories in a directory.
  */
-static void
-list_directory(
-	const char *dirname)
+static int
+scan(const char *dirname)
 {
+	/* Does the argument refer to an existing directory? */
+	struct stat statbuf;
+	if (stat(dirname, &statbuf) == /*OK*/0) {
+		/* Yes, argument is a directory name without pattern */
+		return _scan(dirname, "*");
+	}
+
+	/* Find the start of pattern */
+	const char *pattern = NULL;
+	const char *p = dirname;
+	while (*p != '\0') {
+		if (*p == '\\' || *p == '/' || *p == ':') {
+			pattern = p + 1;
+		}
+		p++;
+	}
+	if (!pattern) {
+		/* No separators so treat the whole name as a pattern */
+		return _scan(".", dirname);
+	}
+
+	/* Extract directory name without pattern */
+	size_t n = pattern - dirname;
+	char *dup = malloc(n);
+	if (!dup) {
+		/* Out of memory */
+		return 0;
+	}
+	strncpy(dup, dirname, n - 1);
+	dup[n - 1] = '\0';
+
+	/* Scan directory with directory name and pattern */
+	int result = _scan(dup, pattern);
+
+	/* Cleanup */
+	free(dup);
+
+	return result;
+}
+
+static int
+_scan(const char *dirname, const char *pattern)
+{
+	/* Pass the pattern to filter function */
+	filter_pattern = pattern;
+
 	/* Scan files in directory */
 	struct dirent **files;
-	int n = scandir(dirname, &files, NULL, alphasort);
+	int n = scandir(dirname, &files, filter, alphasort);
 	if (n < 0) {
-		fprintf(stderr,
-			"Cannot open %s (%s)\n", dirname, strerror(errno));
-		exit(EXIT_FAILURE);
+		/* Cannot open directory */
+		return 0;
 	}
 
 	/* Loop through file names */
@@ -94,6 +152,90 @@ list_directory(
 		free(files[i]);
 	}
 	free(files);
+
+	/* Success */
+	return 1;
+}
+
+/*
+ * Compare directory entry to pattern and return 1 if pattern matches the
+ * entry.
+ */
+static int
+filter(const struct dirent *entry)
+{
+	return match(entry->d_name, filter_pattern);
+}
+
+/* Compare name to a pattern and return 1 if pattern matches the name */
+static int
+match(const char *name, const char *patt)
+{
+	do {
+		switch (*patt) {
+		case '\0':
+			/* Only end of string matches NUL */
+			return *name == '\0';
+
+		case '/':
+		case '\\':
+		case ':':
+			/* Invalid pattern */
+			return 0;
+
+		case '?':
+			/* Any character except NUL matches question mark */
+			if (*name == '\0')
+				return 0;
+
+			/* Consume character and continue scanning */
+			name++;
+			patt++;
+			break;
+
+		case '*':
+			/* Any sequence of characters match asterisk */
+			switch (patt[1]) {
+			case '\0':
+				/* Trailing asterisk matches anything */
+				return 1;
+
+			case '*':
+			case '?':
+			case '/':
+			case '\\':
+			case ':':
+				/* Invalid pattern */
+				return 0;
+
+			default:
+				/* Find the next matching character */
+				while (*name != patt[1]) {
+					if (*name == '\0')
+						return 0;
+					name++;
+				}
+
+				/* Terminate sequence on trailing match */
+				if (match(name, patt + 1))
+					return 1;
+
+				/* No match, continue from next character */
+				name++;
+			}
+			break;
+
+		default:
+			/* Only character itself matches */
+			if (*patt != *name)
+				return 0;
+
+			/* Character passes */
+			name++;
+			patt++;
+		}
+	} while (1);
+	/*NOTREACHED*/
 }
 
 /* Stub for converting arguments to UTF-8 on Windows */

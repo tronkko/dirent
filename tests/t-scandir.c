@@ -32,9 +32,11 @@ static void test_enoent(void);
 static void test_enotdir(void);
 static void test_versionsort(void);
 static void test_large(void);
+static void test_match(void);
 static int only_readme(const struct dirent *entry);
 static int no_directories(const struct dirent *entry);
 static int reverse_alpha(const struct dirent **a, const struct dirent **b);
+static int match(const char *name, const char *patt);
 static void initialize(void);
 static void cleanup(void);
 
@@ -50,6 +52,7 @@ main(void)
 	test_enotdir();
 	test_versionsort();
 	test_large();
+	test_match();
 
 	cleanup();
 	return EXIT_SUCCESS;
@@ -275,6 +278,64 @@ test_large(void)
 	free(files);
 }
 
+static void
+test_match(void)
+{
+	/* Empty string matches another empty string */
+	assert(match("", "") == 1);
+
+	/* Characters match identical characters */
+	assert(match("abc", "abc") == 1);
+
+	/* Question mark matches any character */
+	assert(match("abc", "a?c") == 1);
+	assert(match("abc", "?bc") == 1);
+	assert(match("abc", "ab?") == 1);
+
+	/* Question mark does not match NUL character */
+	assert(match("abc", "abc?") == 0);
+
+	/* Trailing asterisk matches anything, even empty string */
+	assert(match("", "*") == 1);
+	assert(match("abc", "*") == 1);
+	assert(match("abc", "a*") == 1);
+	assert(match("abc", "ab*") == 1);
+	assert(match("abc", "abc*") == 1);
+
+	/* Asterisk matches a sequence of zero or more characters */
+	assert(match("ab", "a*b") == 1);
+	assert(match("axb", "a*b") == 1);
+	assert(match("axxb", "a*b") == 1);
+	assert(match("axxxxxxb", "a*b") == 1);
+
+	/* Asterisk matches the longest string */
+	assert(match("ad", "a*d") == 1);
+	assert(match("abcd", "a*d") == 1);
+	assert(match("abcddddddddddd", "a*d") == 1);
+
+	/* Multiple asterisks in a string are supported */
+	assert(match("a(abcdabcd)bx(abcdabcdabcd)cx(abcdabcdabcd)dx", "a*bx*cx*dx") == 1);
+
+	/* Suffix match */
+	assert(match(".csv", "*.csv") == 1);
+	assert(match("asta.csv", "*.csv") == 1);
+	assert(match("asta.csv.kosta.rento.dat.csv", "*.csv") == 1);
+
+	/* Match returns zero if no match is found */
+	assert(match("abc", "ab") == 0);
+	assert(match("abc", "abC") == 0);
+	assert(match("ad", "*x") == 0);
+	assert(match("baaaa", "a*") == 0);
+	assert(match("asta.csv.kosta.rento.dat", "*.csv") == 0);
+
+	/* Invalid patterns wont match anything */
+	assert(match("/", "/") == 0);
+	assert(match(":", ":") == 0);
+	assert(match("\\", "\\") == 0);
+	assert(match("abb", "a**") == 0);
+	assert(match("abb", "a*?") == 0);
+}
+
 /* Only pass README.txt file */
 static int
 only_readme(const struct dirent *entry)
@@ -294,6 +355,77 @@ static int
 reverse_alpha(const struct dirent **a, const struct dirent **b)
 {
 	return strcoll((*b)->d_name, (*a)->d_name);
+}
+
+/* Compare name to a pattern and return 1 if pattern matches the name */
+static int
+match(const char *name, const char *patt)
+{
+	do {
+		switch (*patt) {
+		case '\0':
+			/* Only end of string matches NUL */
+			return *name == '\0';
+
+		case '/':
+		case '\\':
+		case ':':
+			/* Invalid pattern */
+			return 0;
+
+		case '?':
+			/* Any character except NUL matches question mark */
+			if (*name == '\0')
+				return 0;
+
+			/* Consume character and continue scanning */
+			name++;
+			patt++;
+			break;
+
+		case '*':
+			/* Any sequence of characters match asterisk */
+			switch (patt[1]) {
+			case '\0':
+				/* Trailing asterisk matches anything */
+				return 1;
+
+			case '*':
+			case '?':
+			case '/':
+			case '\\':
+			case ':':
+				/* Invalid pattern */
+				return 0;
+
+			default:
+				/* Find the next matching character */
+				while (*name != patt[1]) {
+					if (*name == '\0')
+						return 0;
+					name++;
+				}
+
+				/* Terminate sequence on trailing match */
+				if (match(name, patt + 1))
+					return 1;
+
+				/* No match, continue from next character */
+				name++;
+			}
+			break;
+
+		default:
+			/* Only character itself matches */
+			if (*patt != *name)
+				return 0;
+
+			/* Character passes */
+			name++;
+			patt++;
+		}
+	} while (1);
+	/*NOTREACHED*/
 }
 
 static void
