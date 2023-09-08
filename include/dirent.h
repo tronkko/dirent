@@ -1068,8 +1068,10 @@ exit_failure:
 
 exit_success:
 	/* Sort directory entries */
-	qsort(files, size, sizeof(void*),
-		(int (*) (const void*, const void*)) compare);
+	if (size > 1 && compare) {
+		qsort(files, size, sizeof(void*),
+			(int (*) (const void*, const void*)) compare);
+	}
 
 	/* Pass pointer table to caller */
 	if (namelist)
