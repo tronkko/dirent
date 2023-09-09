@@ -33,6 +33,7 @@ static void test_enotdir(void);
 static void test_versionsort(void);
 static void test_large(void);
 static void test_match(void);
+static void test_null(void);
 static int only_readme(const struct dirent *entry);
 static int no_directories(const struct dirent *entry);
 static int reverse_alpha(const struct dirent **a, const struct dirent **b);
@@ -53,6 +54,7 @@ main(void)
 	test_versionsort();
 	test_large();
 	test_match();
+	test_null();
 
 	cleanup();
 	return EXIT_SUCCESS;
@@ -334,6 +336,21 @@ test_match(void)
 	assert(match("\\", "\\") == 0);
 	assert(match("abb", "a**") == 0);
 	assert(match("abb", "a*?") == 0);
+}
+
+static void
+test_null(void)
+{
+	/* Scandir can be used with null filter and compare functions */
+	struct dirent **files = NULL;
+	int n = scandir("tests/3", &files, NULL, NULL);
+	assert(n == 13);
+
+	/* Release file names */
+	for (int i = 0; i < n; i++) {
+		free(files[i]);
+	}
+	free(files);
 }
 
 /* Only pass README.txt file */
