@@ -36,9 +36,10 @@ main(void)
 static void
 test_telldir(void)
 {
+	/* Read test directory */
 	DIR *dir = opendir("tests/4");
 	if (dir == NULL) {
-		fprintf(stderr, "Directory tests/4 not found\n");
+		perror("Cannot open directory");
 		abort();
 	}
 
@@ -162,6 +163,9 @@ test_telldir(void)
 	assert(telldir(dir) == posx);
 	ent = readdir(dir);
 	assert(ent == NULL);
+
+	/* Close directory stream */
+	closedir(dir);
 }
 
 static void
