@@ -62,7 +62,7 @@ list_directory(const char *dirname, int level)
 	char buffer[PATH_MAX + 2];
 	char *p = buffer;
 	char *end = &buffer[PATH_MAX];
-	
+
 	/* Copy directory name to buffer */
 	const char *src = dirname;
 	while (p < end && *src != '\0') {

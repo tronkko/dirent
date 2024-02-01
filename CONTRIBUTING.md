@@ -37,5 +37,3 @@ Before making a pull request, please consider that:
 3. Our code will be reviewed and edited by us.  In particular, we may
    reformat your code according to the [Linux Kernel Coding
    Style](https://www.kernel.org/doc/html/v4.10/process/coding-style.html)
-
-

@@ -926,7 +926,7 @@ _wseekdir(_WDIR *dirp, long loc)
 {
 	if (!dirp)
 		return;
-	
+
 	/* Directory must be open */
 	if (dirp->handle == INVALID_HANDLE_VALUE)
 		goto exit_failure;
