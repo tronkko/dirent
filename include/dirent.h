@@ -590,7 +590,7 @@ _wclosedir(_WDIR *dirp)
 	/*
 	 * Release search handle if we have one.  Being able to handle
 	 * partially initialized _WDIR structure allows us to use this
-	 * function to handle errors occuring within _wopendir.
+	 * function to handle errors occurring within _wopendir.
 	 */
 	if (dirp->handle != INVALID_HANDLE_VALUE) {
 		FindClose(dirp->handle);
@@ -926,7 +926,7 @@ _wseekdir(_WDIR *dirp, long loc)
 {
 	if (!dirp)
 		return;
-	
+
 	/* Directory must be open */
 	if (dirp->handle == INVALID_HANDLE_VALUE)
 		goto exit_failure;
