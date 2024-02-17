@@ -89,7 +89,7 @@ below.
 ```
 /* This is your true main function */
 static int
-_main(int argc, wchar_t *argv[])
+_main(int argc, char *argv[])
 {
 	/* ... */
 }
