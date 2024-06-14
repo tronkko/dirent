@@ -420,7 +420,7 @@ _wopendir(const wchar_t *dirname)
 	 * Note that on WinRT there's no way to convert relative paths
 	 * into absolute paths, so just assume it is an absolute path.
 	 */
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#if !defined(WINAPI_FAMILY_PARTITION) || WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 	/* Desktop */
 	DWORD n = GetFullPathNameW(dirname, 0, NULL, NULL);
 #else
@@ -441,7 +441,7 @@ _wopendir(const wchar_t *dirname)
 	 * Note that on WinRT there's no way to convert relative paths
 	 * into absolute paths, so just assume it is an absolute path.
 	 */
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#if !defined(WINAPI_FAMILY_PARTITION) || WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 	/* Desktop */
 	n = GetFullPathNameW(dirname, n, dirp->patt, NULL);
 	if (n <= 0)
