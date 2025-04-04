@@ -1,66 +1,45 @@
-cmake_minimum_required(VERSION 3.5)
-project(dirent LANGUAGES C CXX)
+cmake_minimum_required(VERSION 3.30)
+project(dirent C CXX)
 
-# User options
-option(DIRENT_BUILD_TESTS "Build bundled tests" ON)
-message(STATUS "Build test and example programs: ${DIRENT_BUILD_TESTS}")
+add_library(dirent INTERFACE)
 
-# Initialize C and C++ compilers
-enable_language(C CXX)
+if(NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+  return()
+endif()
 
-# Compile in debug mode by default
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug
-        CACHE STRING
-        "Type of build: None Debug Release RelWithDebInfo MinSizeRel."
-        FORCE
-    )
-endif(NOT CMAKE_BUILD_TYPE)
+target_include_directories(dirent INTERFACE include)
 
-# Use the include directory only on Windows
-if(WIN32)
-    include_directories(${CMAKE_SOURCE_DIR}/include)
-endif(WIN32)
+include(CTest)
 
-# Install dirent.h
-if(WIN32)
-    install(FILES include/dirent.h DESTINATION include)
-endif(WIN32)
+option(DIRENT_BUILD_EXAMPLES "" ON)
 
-# Add distclean target
-add_custom_target(distclean
-    COMMAND ${CMAKE_BUILD_TOOL} clean
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/distclean.cmake
-)
+if(${DIRENT_BUILD_EXAMPLES})
+  block()
+    file(GLOB examples examples/*)
+    foreach(path IN LISTS examples)
+      get_filename_component(name ${path} NAME_WE)
+      set(target ${PROJECT_NAME}_example_${name})
+      add_executable(${target} ${path})
+      target_link_libraries(${target} dirent)
+    endforeach()
+  endblock()
+endif()
 
-# Build example programs
-if(DIRENT_BUILD_TESTS)
-    add_executable(find examples/find.c)
-    add_executable(ls examples/ls.c)
-    add_executable(locate examples/locate.c)
-    add_executable(updatedb examples/updatedb.c)
-    add_executable(scandir examples/scandir.c)
-    add_executable(cat examples/cat.c)
-    add_executable(dir examples/dir.c)
-    add_executable(du examples/du.c)
-
-    # Build test programs
-    include(CTest)
-    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure -C ${CMAKE_CFG_INTDIR})
-    function(add_test_executable TEST_NAME)
-        add_executable(${TEST_NAME} EXCLUDE_FROM_ALL ${ARGN})
-        add_test(NAME ${TEST_NAME} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND $<TARGET_FILE:${TEST_NAME}>)
-        add_dependencies(check ${TEST_NAME})
-        set_property(TEST ${TEST_NAME} PROPERTY SKIP_RETURN_CODE 77)
-    endfunction(add_test_executable)
-
-    add_test_executable(t-compile tests/t-compile.c)
-    add_test_executable(t-dirent tests/t-dirent.c)
-    add_test_executable(t-scandir tests/t-scandir.c)
-    add_test_executable(t-unicode tests/t-unicode.c)
-    add_test_executable(t-cplusplus tests/t-cplusplus.cpp)
-    add_test_executable(t-telldir tests/t-telldir.c)
-    add_test_executable(t-strverscmp tests/t-strverscmp.c)
-    add_test_executable(t-utf8 tests/t-utf8.c)
-    add_test_executable(t-symlink tests/t-symlink.c)
-endif(DIRENT_BUILD_TESTS)
+if(${BUILD_TESTING})
+  block()
+    file(GLOB glob LIST_DIRECTORIES TRUE tests/*)
+    foreach(path IN LISTS glob)
+      if(IS_DIRECTORY ${path})
+        file(COPY ${path} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/tests)
+      else()
+        get_filename_component(name ${path} NAME_WE)
+        string(SUBSTRING ${name} 2 -1 name)
+        set(target ${PROJECT_NAME}_test_${name})
+        add_executable(${target} ${path})
+        target_link_libraries(${target} PRIVATE dirent)
+        add_test(NAME ${target} COMMAND ${target})
+        set_tests_properties(${target} PROPERTIES SKIP_RETURN_CODE 77)
+      endif()
+    endforeach()
+  endblock()
+endif()
