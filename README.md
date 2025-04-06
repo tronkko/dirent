@@ -71,7 +71,7 @@ Generate build files as
     cmake "-DCMAKE_INSTALL_PREFIX=%USERPROFILE%\dist" ..\dirent
 
 where `%USERPROFILE%\dist` specifies a directory for installable Dirent files
-and `..\dirent' is the root directory of the Dirent package containing this
+and `..\dirent` is the root directory of the Dirent package containing this
 README.md file.  Open the generated `dirent.sln` file in Visual Studio and
 build the INSTALL target.  This needs to be done only once.
 
