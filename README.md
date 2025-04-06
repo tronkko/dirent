@@ -1,13 +1,15 @@
 # Dirent
 
-Dirent provides Linux/UNIX compatible directory scanning functions for
-Microsoft Visual Studio.  This allows your C and C++ programs to use the same
-directory scanning functions in Windows and Linux/UNIX.
+Dirent is a Linux/UNIX programming interface for retrieving information about
+files and directories.  This project provides a compatible programming interface
+for C and C++ languages to be used with Microsoft Visual Studio compiler and
+Microsoft Windows operating system.  With this project, you can use the same
+programming interface to access files and directories on both platforms!
 
 
 # Requirements
 
-In order to develop this package further, you will need
+In order to build unit tests and example programs, you will need:
 
 - [Microsoft Visual Studio](https://visualstudio.microsoft.com/) 2017 or later
 - [CMake](https://cmake.org/) version 3.30 or later
@@ -17,7 +19,7 @@ In order to develop this package further, you will need
 
 Dirent can be installed with four alternative methods.  Method 1 is preferred
 for projects built without CMake, method 2 is preferred for projects where
-Dirent needs to be edited locally, method 3 is preferred for projects with
+Dirent needs to be customized, method 3 is preferred for projects with
 multiple developers, and method 4 is preferred for organizations using Dirent
 in multiple projects.
 
@@ -187,7 +189,7 @@ scandir  | Printed sorted list of file names in a directory, e.g. `scandir .`
 du       | Compute disk usage, e.g. `du "C:\Program Files"`
 cat      | Print a text file to screen, e.g. `cat include/dirent.h`
 
-In order to build example programs, first open command prompt and create a
+In order to build example programs, open command prompt and create a
 temporary directory for the build files as
 
     cd %USERPROFILE%\Desktop
@@ -208,8 +210,8 @@ Debug directory as
     cd Debug
     .\ls .
 
-Example files are not built by default when Dirent is embedded into another
-project.  If you want to build test program, then add `-DDIRENT_EXAMPLES=ON`
+Examples are not built by default when Dirent is embedded into another
+project.  If you want to build examples, then add `-DDIRENT_EXAMPLES=ON`
 option to CMake command line when configuring your own project.
 
 
@@ -232,7 +234,7 @@ generated `dirent.sln` file and build/rebuild the solution "check" to run unit
 tests.
 
 Tests are not built by default when Dirent is embedded into another project.
-If you want to include tests, then add `-DDIRENT_TESTS=ON` option to CMake
+If you want to build tests, then add `-DDIRENT_TESTS=ON` option to CMake
 command line when configuring your own project.
 
 
