@@ -1,13 +1,13 @@
-# Dirent
+# Dirent 🐬
 
-Dirent is a Linux/UNIX programming interface for retrieving information about
-files and directories.  This project provides a compatible programming interface
-for C and C++ languages to be used with Microsoft Visual Studio compiler and
-Microsoft Windows operating system.  With this project, you can use the same
-programming interface to access files and directories on both platforms!
+Dirent a Linux/UNIX programming interface for retrieving information about
+files and directories.  This project provides a compatible programming
+interface for Microsoft Visual Studio compiler and Microsoft Windows operating
+system.  Using this interface, your C or C++ application can scan files and
+directories on Microsoft Windows and Linux/UNIX!
 
 
-# Requirements
+# Requirements 🔥
 
 In order to build unit tests and example programs, you will need:
 
@@ -15,15 +15,15 @@ In order to build unit tests and example programs, you will need:
 - [CMake](https://cmake.org/) version 3.30 or later
 
 
-# Installation
+# Installation ⚓
 
 Dirent can be installed with four alternative methods.  Method 1 is preferred
 for projects built without CMake, method 2 is preferred for projects where
 Dirent needs to be customized, method 3 is preferred for projects with
 multiple developers, and method 4 is preferred for organizations using Dirent
-in multiple projects.
+in a number of projects.
 
-Method 1: Download the latest Dirent installation package from
+**Method 1**: Download the latest Dirent installation package from
 [GitHub](https://github.com/tronkko/dirent/releases) and unpack the
 installation file with 7-zip, for example.  Find the `include/dirent.h` file
 from the package, copy the file to a separate directory in your project, and
@@ -31,7 +31,7 @@ add the directory to include path on Windows.  Having `dirent.h` in a separate
 directory allows your project to be compiled against native `dirent.h` on
 Linux/UNIX while substituting the functionality on Microsoft Windows.
 
-Method 2: Download the latest Dirent installation package from
+**Method 2**: Download the latest Dirent installation package from
 [GitHub](https://github.com/tronkko/dirent/releases) and unpack the whole
 package into your project's main directory.  Source Dirent from your own
 `CMakeLists.txt` file as
@@ -43,7 +43,7 @@ and link Dirent to executables as
     add_executable(app app.c)
     target_link_libraries(app dirent)
 
-Method 3: Edit your project's CMakeLists.txt file and load Dirent
+**Method 3**: Edit your project's CMakeLists.txt file and load Dirent
 automatically from GitHub by adding the following code
 
     include(FetchContent)
@@ -58,7 +58,7 @@ Link Dirent to executables as
     add_executable(app app.c)
     target_link_libraries(app dirent)
 
-Method 4: Download the latest Dirent installation package from
+**Method 4**: Download the latest Dirent installation package from
 [GitHub](https://github.com/tronkko/dirent/releases) and unpack files to a
 separate directory.  Create build directory as
 
@@ -94,7 +94,7 @@ where `%USERPROFILE%\dist` is the location of installable Dirent files and src
 is the location of your own source files.
 
 
-# How to Enable UTF-8 Support
+# Use UTF-8 File Names ⚡
 
 By default, file and directory names in the Dirent API are expressed in the
 current Windows codepage.  If you wish to use UTF-8 character encoding at all
@@ -174,7 +174,7 @@ For more information on UTF-8 support, please see setlocale in Visual Studio
 [C runtime library reference](https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=msvc-160#utf-8-support).
 
 
-# Examples
+# Examples 🎓
 
 The source package contains the following example programs.
 
@@ -215,7 +215,7 @@ project.  If you want to build examples, then add `-DDIRENT_EXAMPLES=ON`
 option to CMake command line when configuring your own project.
 
 
-# Testing
+# Testing 🔬
 
 The project contains unit tests.  In order to build and run the unit tests,
 first create temporary directory for build files as
@@ -238,13 +238,13 @@ If you want to build tests, then add `-DDIRENT_TESTS=ON` option to CMake
 command line when configuring your own project.
 
 
-# Contributing
+# Contributing 🐾
 
 We love to receive contributions from you.  See the
 [CONTRIBUTING](CONTRIBUTING.md) file for details.
 
 
-# Copying
+# Copying 📜
 
 Dirent may be freely distributed under the MIT license.  See the
 [LICENSE](LICENSE) file for details.

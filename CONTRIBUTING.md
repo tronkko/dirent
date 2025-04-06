@@ -29,19 +29,41 @@ issue at [GitHub](https://github.com/tronkko/dirent/issues).
 
 ## How to Submit a Fix or an Enhancement 🔧
 
-If you wish to contribute code, then fork the GitHub repository and test
-changes in your private repository first.  If the change works for you and you
-would like to donate the change back to the community, then make a pull
-request at GitHub.
+**Step 1**: Fork the Repository 🍴
 
-Before making a pull request, please consider that:
+Start by forking the repository.  You can do this by clicking the "Fork"
+button in the upper right corner of the repository page.  This will create a
+copy of the repository in your GitHub account.
 
-1. We can only accept contributions which are compatible with [MIT Software
-   License](LICENSE).
-2. By making a pull request, you agree to transfer all copyrights to us.
-3. Our code will be reviewed and edited by us.  In particular, we may
-   reformat your code according to the [Linux Kernel Coding
-   Style](https://www.kernel.org/doc/html/v4.10/process/coding-style.html)
-4. Dirent uses [Trunk Based Development](https://trunkbaseddevelopment.com/).
-   Your pull request should be based on code from master branch and the pull
-   request should be merged back into the master branch.
+**Step 2**: Clone Your Fork 📥
+
+Clone your newly created fork of the repository to your local machine as
+
+    git clone https://github.com/your-username/dirent.git
+
+where `your-username` is your username at GitHub.
+
+**Step 3**: Create a New Branch 🌿
+
+Create a new branch for the issue or feature you are working on as
+
+    git checkout -b "feature"
+
+where `feature` is a concise name for the branch, e.g. "username-patch".
+
+**Step 4**: Submitting Changes 🚀
+
+After you have made changes to the codebase, stage your changes as
+
+    git add .
+
+Commit changes with a message as
+
+    git commit -m "A brief summary of the commit"
+
+**Step 5**: Create a Pull Request 🌟
+
+Go to your forked repository on GitHub and click on the "New Pull Request"
+button.  This will open a new pull request to the original repository.
+
+Thank you for your contribution! ❤️
