@@ -85,7 +85,7 @@ Link Dirent to executables as
     add_executable(app app.c)
     target_link_libraries(app dirent)
 
-Generate your project's build files with the `-DCMAKE\_INSTALL\_PREFIX`
+Generate your project's build files with the `-DCMAKE_INSTALL_PREFIX`
 option as
 
     cmake "-DCMAKE_INSTALL_PREFIX=%USERPROFILE%\dist" src
@@ -98,7 +98,7 @@ is the location of your own source files.
 
 By default, file and directory names in the Dirent API are expressed in the
 current Windows codepage.  If you wish to use UTF-8 character encoding at all
-times, then replace the main function with \_main function and convert
+times, then replace the `main` function with `_main` function and convert
 wide-character arguments to UTF-8 strings as demonstrated in the snippet
 below.
 
