@@ -128,7 +128,7 @@ find_directory(const char *dirname)
 	return /*success*/ 1;
 }
 
-/* Stub for converting arguments to UTF-8 on Windows */
+/* Convert arguments to UTF-8 */
 #ifdef _MSC_VER
 int
 wmain(int argc, wchar_t *argv[])
@@ -146,23 +146,24 @@ wmain(int argc, wchar_t *argv[])
 		exit(3);
 	}
 
-	/* Convert each argument in argv to UTF-8 */
+	/* Convert each argument to UTF-8 */
 	for (int i = 0; i < argc; i++) {
+		/* Compute the size of corresponding UTF-8 string */
 		size_t n;
 		wcstombs_s(&n, NULL, 0, argv[i], 0);
 
-		/* Allocate room for ith argument */
+		/* Allocate room for UTF-8 string */
 		mbargv[i] = (char*) malloc(n + 1);
 		if (!mbargv[i]) {
 			puts("Out of memory");
 			exit(3);
 		}
 
-		/* Convert ith argument to utf-8 */
+		/* Convert ith argument to UTF-8 */
 		wcstombs_s(NULL, mbargv[i], n + 1, argv[i], n);
 	}
 
-	/* Pass UTF-8 converted arguments to the main program */
+	/* Pass UTF-8 arguments to the real main program */
 	int errorcode = _main(argc, mbargv);
 
 	/* Release UTF-8 arguments */
@@ -170,7 +171,7 @@ wmain(int argc, wchar_t *argv[])
 		free(mbargv[i]);
 	}
 
-	/* Release the argument table */
+	/* Release the multi-byte argv table */
 	free(mbargv);
 	return errorcode;
 }

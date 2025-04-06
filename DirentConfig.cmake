@@ -1,0 +1,5 @@
+add_library(dirent INTERFACE)
+if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+    set_target_properties(dirent PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/include/dirent-${DIRENT_VERSION}")
+    message(STATUS "Using dirent.h from ${CMAKE_INSTALL_PREFIX}/include/dirent-${DIRENT_VERSION}")
+endif()

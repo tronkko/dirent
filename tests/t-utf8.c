@@ -244,7 +244,7 @@ initialize(void)
 	 * For more information, please see:
 	 * https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=msvc-160#utf-8-support
 	 */
-	setlocale(LC_ALL, "LC_CTYPE=.utf8");
+	setlocale(LC_ALL, ".utf8");
 
 	/* Initialize random number generator */
 	srand(((int) time(NULL)) * 257 + ((int) GetCurrentProcessId()));
