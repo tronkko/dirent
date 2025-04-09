@@ -56,7 +56,7 @@ test_wcs(void)
 	}
 
 	/* Compute length of directory name */
-	DWORD k = wcslen(wpath);
+	size_t k = wcslen(wpath);
 
 	/* Read through entries */
 	int counter = 0;
@@ -75,10 +75,10 @@ test_wcs(void)
 		assert(wentry->d_type == DT_REG);
 
 		/* Modify wpath by appending file name to it */
-		DWORD i = k;
+		size_t i = k;
 		assert(i < MAX_PATH);
 		wpath[i++] = '\\';
-		DWORD x = 0;
+		size_t x = 0;
 		while (wentry->d_name[x] != '\0') {
 			assert(i < MAX_PATH);
 			wpath[i++] = wentry->d_name[x++];
@@ -100,17 +100,18 @@ test_wcs(void)
 
 		/* Read data from file */
 		char buffer[100];
+		DWORD n;
 		BOOL ok = ReadFile(
 			/* File handle */ fh,
 			/* Output buffer */ buffer,
 			/* Max number of bytes to read */ sizeof(buffer) - 1,
-			/* Number of bytes actually read */ &x,
+			/* Number of bytes actually read */ &n,
 			/* Overlapped */ NULL
 		);
 		assert(ok);
 
 		/* Make sure that we got the file contents right */
-		assert(x == 4);
+		assert(n == 4);
 		assert(buffer[0] == 'h');
 		assert(buffer[1] == 'e');
 		assert(buffer[2] == 'p');
@@ -144,7 +145,7 @@ test_mbs(void)
 	}
 
 	/* Compute length of directory name */
-	DWORD k = strlen(path);
+	size_t k = strlen(path);
 
 	/* Read through entries */
 	int counter = 0;
@@ -163,10 +164,10 @@ test_mbs(void)
 		assert(entry->d_type == DT_REG);
 
 		/* Modify path by appending file name to it */
-		DWORD j = k;
+		size_t j = k;
 		assert(j < MAX_PATH);
 		path[j++] = '\\';
-		DWORD x = 0;
+		size_t x = 0;
 		while (entry->d_name[x] != '\0') {
 			assert(j < MAX_PATH);
 			path[j++] = entry->d_name[x++];
@@ -215,10 +216,10 @@ test_utf8(void)
 {
 #ifdef WIN32
 	/* Compute length of directory name */
-	DWORD k = strlen(path);
+	size_t k = strlen(path);
 
 	/* Append UTF-8 file name (åäö.txt) to path */
-	DWORD j = k;
+	size_t j = k;
 	path[j++] = '\\';
 	path[j++] = 0xc3;
 	path[j++] = 0xa5;
@@ -281,7 +282,7 @@ test_utf8(void)
 		j = k;
 		assert(j < MAX_PATH);
 		path[j++] = '\\';
-		DWORD x = 0;
+		size_t x = 0;
 		while (entry->d_name[x] != '\0') {
 			assert(j < MAX_PATH);
 			path[j++] = entry->d_name[x++];
@@ -347,13 +348,13 @@ initialize(void)
 	srand(((int) time(NULL)) * 257 + ((int) GetCurrentProcessId()));
 
 	/* Get path to temporary directory (wide-character and ascii) */
-	DWORD i = GetTempPathW(MAX_PATH, wpath);
+	size_t i = GetTempPathW(MAX_PATH, wpath);
 	assert(i > 0);
-	DWORD j = GetTempPathA(MAX_PATH, path);
+	size_t j = GetTempPathA(MAX_PATH, path);
 	assert(j > 0);
 
 	/* Append random directory name to both paths */
-	DWORD k;
+	size_t k;
 	for (k = 0; k < 10; k++) {
 		/* Generate random character */
 		char c = "abcdefghijklmnopqrstuvwxyz"[rand() % 26];
