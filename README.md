@@ -175,14 +175,15 @@ The source package contains the following example programs.
 
 Program  | Purpose
 -------- | -----------------------------------------------------------------
-ls       | List files in a directory, e.g. `ls "c:\Program Files"`
-dir      | List files in a directory, e.g. `dir "c:\Program Files"`
-find     | Find files in subdirectories, e.g. `find "c:\Program Files\CMake"`
-updatedb | Build database of files in a drive, e.g. `updatedb c:\`
-locate   | Locate a file from database, e.g. `locate notepad`
-scandir  | Printed sorted list of file names in a directory, e.g. `scandir .`
-du       | Compute disk usage, e.g. `du "C:\Program Files"`
-cat      | Print a text file to screen, e.g. `cat include/dirent.h`
+[ls](examples/ls.c) | List files in a directory, e.g. `ls "c:\Program Files"`
+[dir](examples/dir.c) | List files in a directory, e.g. `dir "c:\Program Files"`
+[find](examples/find.c) | Find files in subdirectories, e.g. `find "c:\Program Files\CMake"`
+[updatedb](examples/updatedb.c) | Build database of files in a drive, e.g. `updatedb c:\`
+[locate](examples/locate.c) | Locate a file from database, e.g. `locate notepad`
+[scandir](examples/scandir.c) | Printed sorted list of file names in a directory, e.g. `scandir .`
+[du](examples/du.c) | Compute disk usage, e.g. `du "C:\Program Files"`
+[cat](examples/cat.c) | Print a text file to screen, e.g. `cat include/dirent.h`
+[extension\_lookup](examples/extension_lookup.cpp) | Search files with specific extension
 
 In order to build example programs, unpack the source package to your desktop,
 for example, open command prompt and cd to the root directory of the source
