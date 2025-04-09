@@ -1,5 +1,10 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.10.2)
 project(dirent C CXX)
+
+if (CMAKE_VERSION VERSION_LESS 3.21)
+  # https://cmake.org/cmake/help/latest/variable/PROJECT_IS_TOP_LEVEL.html
+  string(COMPARE EQUAL ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR} PROJECT_IS_TOP_LEVEL)
+endif()
 
 # Declare three-state DIRENT_EXAMPLES option to enable or disable building of
 # examples.
