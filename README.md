@@ -12,7 +12,7 @@ directories on Microsoft Windows and Linux/UNIX!
 In order to build unit tests and example programs, you will need:
 
 - [Microsoft Visual Studio](https://visualstudio.microsoft.com/) 2017 or later
-- [CMake](https://cmake.org/) version 3.30 or later
+- [CMake](https://cmake.org/) version 3.13 or later
 
 
 # Installation ⚓
@@ -175,15 +175,15 @@ The source package contains the following example programs.
 
 Program  | Purpose
 -------- | -----------------------------------------------------------------
-[ls](examples/ls.c) | List files in a directory, e.g. `ls "c:\Program Files"`
-[dir](examples/dir.c) | List files in a directory, e.g. `dir "c:\Program Files"`
-[find](examples/find.c) | Find files in subdirectories, e.g. `find "c:\Program Files\CMake"`
-[updatedb](examples/updatedb.c) | Build database of files in a drive, e.g. `updatedb c:\`
-[locate](examples/locate.c) | Locate a file from database, e.g. `locate notepad`
-[scandir](examples/scandir.c) | Printed sorted list of file names in a directory, e.g. `scandir .`
-[du](examples/du.c) | Compute disk usage, e.g. `du "C:\Program Files"`
-[cat](examples/cat.c) | Print a text file to screen, e.g. `cat include/dirent.h`
-[extension\_lookup](examples/extension_lookup.cpp) | Search files with specific extension
+[ls.c](examples/ls.c) | List files in a directory, e.g. `ls "c:\Program Files"`
+[dir.c](examples/dir.c) | List files in a directory, e.g. `dir "c:\Program Files"`
+[find.c](examples/find.c) | Find files in subdirectories, e.g. `find "c:\Program Files\CMake"`
+[updatedb.c](examples/updatedb.c) | Build database of files in a drive, e.g. `updatedb c:\`
+[locate.c](examples/locate.c) | Locate a file from database, e.g. `locate notepad`
+[scandir.c](examples/scandir.c) | Printed sorted list of file names in a directory, e.g. `scandir .`
+[du.c](examples/du.c) | Compute disk usage, e.g. `du "C:\Program Files"`
+[cat.c](examples/cat.c) | Print a text file to screen, e.g. `cat include/dirent.h`
+[extension\_lookup.cpp](examples/extension_lookup.cpp) | Search files with specific extension
 
 In order to build example programs, unpack the source package to your desktop,
 for example, open command prompt and cd to the root directory of the source
