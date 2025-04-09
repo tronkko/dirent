@@ -6,6 +6,9 @@ interface for Microsoft Visual Studio compiler and Microsoft Windows operating
 system.  Using this interface, your C or C++ application can scan files and
 directories on Microsoft Windows and Linux/UNIX!
 
+Learn more about Dirent from the UNIX specification on
+[opengroup.org](https://pubs.opengroup.org/onlinepubs/7908799/xsh/dirent.h.html)!
+
 
 # Requirements 🔥
 
