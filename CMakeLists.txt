@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(dirent C CXX)
 
+# Set PROJECT_IS_TOP_LEVEL variable for CMake < 3.21
+# https://cmake.org/cmake/help/latest/variable/PROJECT_IS_TOP_LEVEL.html
 if (CMAKE_VERSION VERSION_LESS 3.21)
-  # https://cmake.org/cmake/help/latest/variable/PROJECT_IS_TOP_LEVEL.html
   string(COMPARE EQUAL ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR} PROJECT_IS_TOP_LEVEL)
 endif()
 
@@ -33,11 +34,9 @@ endif()
 # when dirent is compiled as a top level project.
 if(DIRENT_EXAMPLES STREQUAL "ON" OR (DIRENT_EXAMPLES STREQUAL "AUTO" AND PROJECT_IS_TOP_LEVEL))
   foreach(source IN ITEMS find.c ls.c locate.c updatedb.c scandir.c cat.c dir.c du.c)
-    block()
-      get_filename_component(target ${source} NAME_WE)
-      add_executable(${target} examples/${source})
-      target_link_libraries(${target} dirent)
-    endblock()
+    get_filename_component(target ${source} NAME_WE)
+    add_executable(${target} examples/${source})
+    target_link_libraries(${target} dirent)
   endforeach()
   message(STATUS "Dirent example programs included in build")
 else()
@@ -53,14 +52,12 @@ if(DIRENT_TESTS STREQUAL "ON" OR (DIRENT_TESTS STREQUAL "AUTO" AND PROJECT_IS_TO
 
   # Build test programs and add them as dependencies to the check target
   foreach(source IN ITEMS t-compile.c t-dirent.c t-scandir.c t-unicode.c t-cplusplus.cpp t-telldir.c t-strverscmp.c t-utf8.c t-symlink.c)
-    block()
-      get_filename_component(target ${source} NAME_WE)
-      add_executable(${target} tests/${source})
-      target_link_libraries(${target} PRIVATE dirent)
-      add_test(NAME ${target} COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${target} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-      set_tests_properties(${target} PROPERTIES SKIP_RETURN_CODE 77)
-      add_dependencies(check ${target})
-    endblock()
+    get_filename_component(target ${source} NAME_WE)
+    add_executable(${target} tests/${source})
+    target_link_libraries(${target} PRIVATE dirent)
+    add_test(NAME ${target} COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${target} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+    set_tests_properties(${target} PROPERTIES SKIP_RETURN_CODE 77)
+    add_dependencies(check ${target})
   endforeach()
   message(STATUS "Dirent unit tests included in build")
 else()
