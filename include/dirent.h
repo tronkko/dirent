@@ -54,115 +54,81 @@
 #	define S_IFMT _S_IFMT
 #endif
 
-/* Directory bit */
+/*
+ * File types.  Be ware that macros S_IFLNK and S_ISLNK are only usable with
+ * dirent: the real stat() function call never returns these values!
+ */
 #if !defined(S_IFDIR)
 #	define S_IFDIR _S_IFDIR
 #endif
-
-/* Character device bit */
 #if !defined(S_IFCHR)
 #	define S_IFCHR _S_IFCHR
 #endif
-
-/* Regular file bit */
 #if !defined(S_IFREG)
 #	define S_IFREG _S_IFREG
 #endif
-
-/* Read permission */
-#if !defined(S_IREAD)
-#	define S_IREAD _S_IREAD
-#endif
-
-/* Write permission */
-#if !defined(S_IWRITE)
-#	define S_IWRITE _S_IWRITE
-#endif
-
-/* Execute permission */
-#if !defined(S_IEXEC)
-#	define S_IEXEC _S_IEXEC
-#endif
-
-/* Pipe */
 #if !defined(S_IFIFO)
 #	define S_IFIFO _S_IFIFO
 #endif
-
-/* Block device */
 #if !defined(S_IFBLK)
 #	define S_IFBLK 0x6000
 #endif
-
-/*
- * Symbolic link.  Be ware that S_IFLNK value and S_ISLNK() macro are only
- * usable with dirent - they do not work with stat() function call!
- */
 #if !defined(S_IFLNK)
 #	define S_IFLNK 0xA000
 #endif
-
-/* Socket */
 #if !defined(S_IFSOCK)
 #	define S_IFSOCK 0xC000
 #endif
 
-/* Read user permission */
+/* Access permissions */
+#if !defined(S_IREAD)
+#	define S_IREAD _S_IREAD
+#endif
+#if !defined(S_IWRITE)
+#	define S_IWRITE _S_IWRITE
+#endif
+#if !defined(S_IEXEC)
+#	define S_IEXEC _S_IEXEC
+#endif
+
+/* User permissions */
 #if !defined(S_IRUSR)
 #	define S_IRUSR S_IREAD
 #endif
-
-/* Write user permission */
 #if !defined(S_IWUSR)
 #	define S_IWUSR S_IWRITE
 #endif
-
-/* Execute user permission */
 #if !defined(S_IXUSR)
 #	define S_IXUSR _S_IEXEC
 #endif
-
-/* User full permissions */
 #if !defined(S_IRWXU)
 #	define S_IRWXU (S_IRUSR | S_IWUSR | S_IXUSR)
 #endif
 
-/* Read group permission */
+/* Group permissions */
 #if !defined(S_IRGRP)
 #	define S_IRGRP (S_IRUSR >> 3)
 #endif
-
-/* Write group permission */
 #if !defined(S_IWGRP)
 # define S_IWGRP (S_IWUSR >> 3)
 #endif
-
-/* Execute group permission */
 #if !defined(S_IXGRP)
 # define S_IXGRP (S_IXUSR >> 3)
 #endif
-
-/* Group full permissions */
 #if !defined(S_IRWXG)
 #	define S_IRWXG (S_IRGRP | S_IWGRP | S_IXGRP)
 #endif
 
-/* Read others permission */
+/* Others permission */
 #if !defined(S_IROTH)
 # define S_IROTH (S_IRGRP >> 3)
 #endif
-
-/* Write others permission */
 #if !defined(S_IWOTH)
 # define S_IWOTH (S_IWGRP >> 3)
 #endif
-
-/* Execute others permission */
 #if !defined(S_IXOTH)
 # define S_IXOTH (S_IXGRP >> 3)
 #endif
-
-/* Other full permissions */
 #if !defined(S_IRWXO)
 #	define S_IRWXO (S_IROTH | S_IWOTH | S_IXOTH)
 #endif
@@ -194,7 +160,7 @@
 
 /*
  * File type macros.  Note that block devices and sockets cannot be
- * distinguished on Windows, and the macros S_ISBLK and S_ISSOCK are only
+ * distinguished on Windows and macros such as S_ISBLK and S_ISSOCK are only
  * defined for compatibility.  These macros should always return false on
  * Windows.
  */
