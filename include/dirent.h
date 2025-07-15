@@ -79,6 +79,9 @@
 #if !defined(S_IFSOCK)
 #	define S_IFSOCK 0xC000
 #endif
+#if !defined(S_IFWHT)
+#	define S_IFWHT 0xE000
+#endif
 
 /* Access permissions */
 #if !defined(S_IREAD)
@@ -153,6 +156,7 @@
 #define DT_CHR S_IFCHR
 #define DT_BLK S_IFBLK
 #define DT_LNK S_IFLNK
+#define DT_WHT S_IFWHT
 
 /* Macros for converting between st_mode and d_type */
 #define IFTODT(mode) ((mode) & S_IFMT)
@@ -184,6 +188,9 @@
 #endif
 #if !defined(S_ISBLK)
 #	define S_ISBLK(mode) (((mode) & S_IFMT) == S_IFBLK)
+#endif
+#if !defined(S_ISWHT)
+#	define S_ISWHT(mode) (((mode) & S_IFMT) == S_IFWHT)
 #endif
 
 /* Return the exact length of the file name without zero terminator */
