@@ -186,6 +186,7 @@ Program  | Purpose
 [scandir.c](examples/scandir.c) | Printed sorted list of file names in a directory, e.g. `scandir .`
 [du.c](examples/du.c) | Compute disk usage, e.g. `du "C:\Program Files"`
 [cat.c](examples/cat.c) | Print a text file to screen, e.g. `cat include/dirent.h`
+[stat.c](examples/stat.c) | Print file/directory permissions, e.g. `stat include/dirent.h`
 [extension\_lookup.cpp](examples/extension_lookup.cpp) | Search files with specific extension
 
 In order to build example programs, unpack the source package to your desktop,

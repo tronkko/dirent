@@ -33,7 +33,7 @@ endif()
 # Build example programs when cmake is invoked with -DDIRENT_EXAMPLES=ON or
 # when dirent is compiled as a top level project.
 if(DIRENT_EXAMPLES STREQUAL "ON" OR (DIRENT_EXAMPLES STREQUAL "AUTO" AND PROJECT_IS_TOP_LEVEL))
-  foreach(source IN ITEMS find.c ls.c locate.c updatedb.c scandir.c cat.c dir.c du.c extension_lookup.cpp)
+  foreach(source IN ITEMS find.c ls.c locate.c updatedb.c scandir.c cat.c dir.c du.c extension_lookup.cpp stat.c)
     get_filename_component(target ${source} NAME_WE)
     add_executable(${target} examples/${source})
     target_link_libraries(${target} dirent)

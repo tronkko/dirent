@@ -1,12 +1,12 @@
 /*
- * Output contents of a file.
+ * Print file permissions.
  *
  * Compile this file with Visual Studio and run the produced command in
  * console with a file name argument.  For example, command
  *
- *     cat include\dirent.h
+ *     stat include\dirent.h
  *
- * will output the dirent.h to screen.
+ * will output permissions of dirent.h to screen.
  *
  * Copyright (C) 1998-2019 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed
@@ -20,8 +20,18 @@
 #include <dirent.h>
 #include <errno.h>
 #include <locale.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <time.h>
+#ifdef _MSC_VER
+#	include <direct.h>
+#	include <io.h>
+#	define stat _stat64
+#else
+#	include <unistd.h>
+#endif
 
-static void output_file(const char *fn);
+static void stat_file(const char *fn);
 static int _main(int argc, char *argv[]);
 
 static int
@@ -29,14 +39,14 @@ _main(int argc, char *argv[])
 {
 	/* Require at least one file */
 	if (argc == 1) {
-		fprintf(stderr, "Usage: cat filename(s)\n");
+		fprintf(stderr, "Usage: stat filename(s)\n");
 		return EXIT_FAILURE;
 	}
 
 	/* For each file name argument in command line */
 	int i = 1;
 	while (i < argc) {
-		output_file(argv[i]);
+		stat_file(argv[i]);
 		i++;
 	}
 	return EXIT_SUCCESS;
@@ -46,29 +56,55 @@ _main(int argc, char *argv[])
  * Output file to screen
  */
 static void
-output_file(const char *fn)
+stat_file(const char *fn)
 {
-	/* Open file */
-	FILE *fp = fopen(fn, "r");
-	if (!fp) {
-		/* Could not open directory */
-		fprintf(stderr, "Cannot open %s (%s)\n", fn, strerror(errno));
+	struct stat buf;
+
+	/* Get file permissions */
+	if (stat(fn, &buf) != /*OK*/0) {
+		fprintf(stderr, "Cannot stat %s (%s)\n", fn, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
-	/* Output file to screen */
-	size_t n;
-	do {
-		/* Read some bytes from file */
-		char buffer[4096];
-		n = fread(buffer, 1, 4096, fp);
+	/* Determine file type */
+	const char *type;
+	if (S_ISFIFO(buf.st_mode))
+		type = "pipe";
+	else if (S_ISDIR(buf.st_mode))
+		type = "directory";
+	else if (S_ISREG(buf.st_mode))
+		type = "file";
+	else if (S_ISLNK(buf.st_mode))
+		type = "link";
+	else if (S_ISSOCK(buf.st_mode))
+		type = "socket";
+	else if (S_ISCHR(buf.st_mode))
+		type = "character device";
+	else if (S_ISBLK(buf.st_mode))
+		type = "block device";
+	else
+		type = "unknown";
 
-		/* Output bytes to screen */
-		fwrite(buffer, 1, n, stdout);
-	} while (n != 0);
-
-	/* Close file */
-	fclose(fp);
+	/* Print file info */
+	printf("name: %s\n", fn);
+	printf("type: %s\n", type);
+	printf("size: %lld\n", (long long) buf.st_size);
+	printf("mode: 0%03o (%c%c%c%c%c%c%c%c%c%c)\n",
+		buf.st_mode & (S_IRWXU|S_IRWXG|S_IRWXO),
+		S_ISDIR(buf.st_mode) ? 'd' : '-',
+		(buf.st_mode & S_IRUSR) ? 'r' : '-',
+		(buf.st_mode & S_IWUSR) ? 'w' : '-',
+		(buf.st_mode & S_IXUSR) ? 'x' : '-',
+		(buf.st_mode & S_IRGRP) ? 'r' : '-',
+		(buf.st_mode & S_IWGRP) ? 'w' : '-',
+		(buf.st_mode & S_IXGRP) ? 'x' : '-',
+		(buf.st_mode & S_IROTH) ? 'r' : '-',
+		(buf.st_mode & S_IWOTH) ? 'w' : '-',
+		(buf.st_mode & S_IXOTH) ? 'x' : '-'
+	);
+	printf("atime: %s", ctime(&buf.st_ctime));
+	printf("ctime: %s", ctime(&buf.st_ctime));
+	printf("mtime: %s", ctime(&buf.st_mtime));
 }
 
 /* Convert arguments to UTF-8 */

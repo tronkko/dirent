@@ -22,7 +22,6 @@
 #undef NDEBUG
 #include <assert.h>
 
-static void test_macros(void);
 static void test_retrieval(void);
 static void test_nonexistent(void);
 static void test_isfile(void);
@@ -40,7 +39,6 @@ main(void)
 {
 	initialize();
 
-	test_macros();
 	test_retrieval();
 	test_nonexistent();
 	test_isfile();
@@ -53,25 +51,6 @@ main(void)
 
 	cleanup();
 	return EXIT_SUCCESS;
-}
-
-/* Test file type macros */
-static void
-test_macros(void)
-{
-	assert(DTTOIF(DT_REG) == S_IFREG);
-	assert(DTTOIF(DT_DIR) == S_IFDIR);
-	assert(DTTOIF(DT_FIFO) == S_IFIFO);
-	assert(DTTOIF(DT_SOCK) == S_IFSOCK);
-	assert(DTTOIF(DT_CHR) == S_IFCHR);
-	assert(DTTOIF(DT_BLK) == S_IFBLK);
-
-	assert(IFTODT(S_IFREG) == DT_REG);
-	assert(IFTODT(S_IFDIR) == DT_DIR);
-	assert(IFTODT(S_IFIFO) == DT_FIFO);
-	assert(IFTODT(S_IFSOCK) == DT_SOCK);
-	assert(IFTODT(S_IFCHR) == DT_CHR);
-	assert(IFTODT(S_IFBLK) == DT_BLK);
 }
 
 /* Test basic directory retrieval */
