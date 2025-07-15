@@ -64,11 +64,6 @@
 #	define S_IFCHR _S_IFCHR
 #endif
 
-/* Pipe bit */
-#if !defined(S_IFFIFO)
-#	define S_IFFIFO _S_IFFIFO
-#endif
-
 /* Regular file bit */
 #if !defined(S_IFREG)
 #	define S_IFREG _S_IFREG
@@ -96,7 +91,7 @@
 
 /* Block device */
 #if !defined(S_IFBLK)
-#	define S_IFBLK 0
+#	define S_IFBLK 0x6000
 #endif
 
 /*
@@ -104,12 +99,12 @@
  * usable with dirent - they do not work with stat() function call!
  */
 #if !defined(S_IFLNK)
-#	define S_IFLNK (_S_IFDIR | _S_IFREG)
+#	define S_IFLNK 0xA000
 #endif
 
 /* Socket */
 #if !defined(S_IFSOCK)
-#	define S_IFSOCK 0
+#	define S_IFSOCK 0xC000
 #endif
 
 /* Read user permission */
@@ -124,7 +119,7 @@
 
 /* Execute user permission */
 #if !defined(S_IXUSR)
-#	define S_IXUSR 0
+#	define S_IXUSR _S_IEXEC
 #endif
 
 /* User full permissions */
@@ -134,17 +129,17 @@
 
 /* Read group permission */
 #if !defined(S_IRGRP)
-#	define S_IRGRP 0
+#	define S_IRGRP (S_IRUSR >> 3)
 #endif
 
 /* Write group permission */
 #if !defined(S_IWGRP)
-#	define S_IWGRP 0
+# define S_IWGRP (S_IWUSR >> 3)
 #endif
 
 /* Execute group permission */
 #if !defined(S_IXGRP)
-#	define S_IXGRP 0
+# define S_IXGRP (S_IXUSR >> 3)
 #endif
 
 /* Group full permissions */
@@ -154,17 +149,17 @@
 
 /* Read others permission */
 #if !defined(S_IROTH)
-#	define S_IROTH 0
+# define S_IROTH (S_IRGRP >> 3)
 #endif
 
 /* Write others permission */
 #if !defined(S_IWOTH)
-#	define S_IWOTH 0
+# define S_IWOTH (S_IWGRP >> 3)
 #endif
 
 /* Execute others permission */
 #if !defined(S_IXOTH)
-#	define S_IXOTH 0
+# define S_IXOTH (S_IXGRP >> 3)
 #endif
 
 /* Other full permissions */
