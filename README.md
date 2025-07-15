@@ -52,7 +52,7 @@ automatically from GitHub by adding the following code
     include(FetchContent)
     FetchContent_Declare(
         dirent
-        URL https://github.com/tronkko/dirent/archive/refs/tags/1.25.zip
+        URL https://github.com/tronkko/dirent/archive/refs/tags/1.26.zip
     )
     FetchContent_MakeAvailable(dirent)
 
@@ -76,7 +76,7 @@ needs to be done only once.
 In order to use Dirent in your own projects, update each project's
 CMakeLists.txt file by adding line
 
-    find_package(Dirent 1.25 REQUIRED)
+    find_package(Dirent 1.26 REQUIRED)
 
 Link Dirent to executables as
 

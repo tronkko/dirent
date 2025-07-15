@@ -18,7 +18,7 @@ set(DIRENT_TESTS "AUTO" CACHE STRING "Build dirent test programs")
 set_property(CACHE DIRENT_TESTS PROPERTY STRINGS "AUTO" "ON" "OFF")
 
 # Current API version
-set(DIRENT_VERSION 1.25)
+set(DIRENT_VERSION 1.26)
 
 # Publish dirent as a library
 add_library(dirent INTERFACE)
